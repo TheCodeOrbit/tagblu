@@ -1,0 +1,34 @@
+
+          <html xmlns:o="urn:schemas-microsoft-com:office:office"
+                xmlns:x="urn:schemas-microsoft-com:office:excel"
+                xmlns="http://www.w3.org/TR/REC-html40">
+          <head>
+            <meta charset="UTF-8">
+            <style>
+              table { border-collapse: collapse; }
+              td, th { border: 1px solid black; padding: 5px; }
+              th { background-color: #f2f2f2; font-weight: bold; }
+            </style>
+          </head>
+          <body>
+            <table>
+              <thead>
+                <tr>
+                  <th>Lead Name</th><th>First Name</th><th>Last Name</th><th>Lead Status</th><th>Vertical Manager</th><th>Vendor Account</th><th>Address</th><th>City</th><th>No Of Employees</th><th>Lead Source</th><th>Website</th><th>Annual Revenue (Crores)</th><th>Created BY</th><th>Created Time</th><th>Modified Time</th>
+                </tr>
+              </thead>
+              <tbody>
+        
+            <tr>
+              <td>SonuAbc</td><td>Sonu11</td><td>Shah</td><td>Changes Required</td><td>Ravindra Sales</td><td>Abc Pvt Ltd</td><td></td><td></td><td></td><td>Advertisement</td><td>Sonu.com</td><td>25</td><td>deepika</td><td>2024-11-17 12:01:53</td><td>2024-12-24 09:40:50</td>
+            </tr>
+          
+            <tr>
+              <td>FarinSheikh</td><td>Farin</td><td>Sheikh</td><td>Not Contacted</td><td>Ravindra Sales</td><td>Abc Pvt Ltd</td><td></td><td></td><td></td><td></td><td></td><td>25</td><td>deepika</td><td>2024-11-17 11:55:03</td><td>2024-11-30 09:29:12</td>
+            </tr>
+          
+              </tbody>
+            </table>
+          </body>
+          </html>
+        

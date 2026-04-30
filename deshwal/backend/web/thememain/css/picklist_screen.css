@@ -1,0 +1,16 @@
+#tableContainer {
+    max-height: 250px;
+    overflow-y: auto;
+}
+#dynamicTable{
+    table-layout: fixed;
+}
+#dynamicTable thead th {
+    position: sticky;
+    top: 0;
+    background: #f1f1f1; /* light gray for header */
+    z-index: 2; /* stay above tbody rows */
+}
+#listheader{
+    vertical-align: middle;
+}

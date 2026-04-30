@@ -1,0 +1,4 @@
+http://138.68.26.225/tetraclients/mineshot2gcpnew/index.php/contractormaster/PopupList?field=company_name&rdisfield=company_name&custid=customername&mname=manpower&maintabid=40
+
+
+showCustomer1('company_name2','company_name','company_name3','customername','manpower','','','40')

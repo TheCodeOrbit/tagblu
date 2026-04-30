@@ -1,0 +1,221 @@
+<tr id="prod_tbl" class="prod_tbl">
+<?php if($Block->Fields[0]->tablename != 'p_reconciliation_data' AND $Block->Fields[0]->tablename != 'ce_p_reconciliation_data') { ?>
+<td class="<?php echo $Block->Fields[0]->tablename;?>Delete text-center" id="<?php echo $Block->Fields[0]->tablename.'_'.$cnt_multiple_product.'_Delete'?>"><a href="javascript:void;"><span class="glyphicon glyphicon-trash"></span></a></td>
+<?php }
+//echo "<pre>";
+//print_r($Block);
+//die;
+//$form=$this->beginWidget('CActiveForm'); 
+$ModuleName="";
+$obj_name=$Block->Fields[0]->tablename;
+if($Block->Fields[0]->tablename=="openingstock_data")
+    $ModuleName="openingstock";
+if($Block->Fields[0]->tablename=="mine_loss_dispatch_hours")
+    $ModuleName="logisticmine_12";
+
+if($Block->Fields[0]->tablename=="vehicle_detention")
+    $ModuleName="logisticmine_12";
+
+if($Block->Fields[0]->tablename=="siding_receipt")
+    $ModuleName="logisticsiding";
+
+if($Block->Fields[0]->tablename=="vehicle_detention_siding")
+   $ModuleName="logisticsiding";
+
+
+if($Block->Fields[0]->tablename=="loss_dispatch_hours")
+    $ModuleName="logisticsiding";
+if($Block->Fields[0]->tablename=="rakedispatch_siding")
+    $ModuleName="logisticsiding";
+
+
+
+
+
+if($Block->Fields[0]->tablename=="stockadjment_data")
+    $ModuleName="stockadjustment";
+if($Block->Fields[0]->tablename=="treefelling_data")
+    $ModuleName="treefelling";
+if($Block->Fields[0]->tablename=="drilling_data")
+    $ModuleName="dailydrilling";
+if($Block->Fields[0]->tablename=="p_reconciliation_data")
+    $ModuleName="p_reconciliation";
+if($Block->Fields[0]->tablename=="ce_p_reconciliation_data")
+    $ModuleName="ce_p_reconciliation";
+
+if($Block->Fields[0]->tablename=="data_obremoval" or $Block->Fields[0]->tablename=="coal_extraction_data" or $Block->Fields[0]->tablename=="ob_loss_hours_production" or $Block->Fields[0]->tablename=="ob_loss_production_hours")
+    $ModuleName="obcesummary";
+
+//echo "<br>Module Name=$ModuleName";
+
+foreach($Block->Fields as $key=> $Field):
+	/*echo "<pre>";		
+	print_r($Field);
+	die;*/
+	if($Field->edit_view==1):
+
+	$attr_name="{$Field->tablename}[{$cnt_multiple_product}][{$Field->fieldname}]";
+	$attr_id="{$Field->tablename}_{$cnt_multiple_product}_{$Field->fieldname}";
+	//echo "<br>attr_name=$attr_name and attr_id=$attr_id";
+	?>
+					
+	<?php if($Field['uitype']==1):?><!--HI ui type is 1-->
+	<td class="<?php echo $Field->td_classname;?>">
+	<?php 	if(strpos($Field->classname, 'ReadOnly') !== false){
+			echo CHtml::textField($attr_name, '',array('id'=>$attr_id, 'class'=>$Field->classname,'readonly'=>true));
+		}
+		else{
+			if($Block->Fields[0]->tablename =='contractorattendancedata' && ($Field->columnname == 'shift_operator_name' or $Field->columnname == 'role')){
+			echo CHtml::textField($attr_name, '',array('id'=>$attr_id, 'class'=>$Field->classname,'readonly'=>true));
+			}else{
+			echo CHtml::textField($attr_name, '',array('id'=>$attr_id, 'class'=>$Field->classname));
+			}
+		}
+		if (strpos($Field->classname, 'col-sm-3') !== false)
+		$tooltip_class="tooltipImages";
+		else
+		$tooltip_class="tooltip_img";
+	 ?>
+		<div id="<?php echo $attr_id.'_em_';?>" class="ajxwarning errorMessage <?php echo $tooltip_class;?> bb1" style="display:none;"></div>
+	</td>
+	<?php	elseif($Field['uitype']==8): ?>
+		<?php $PickList=new PickList;
+		$PickList->fieldid=$Field->fieldid;
+                $obj_name=$Field->tablename;
+		$fieldoptions=$PickList->getPickListOption($ModuleName);
+		?>
+	<td class="<?php echo $Field->td_classname;?>">
+		<div id="<?php echo $obj_name._.$cnt_multiple_product._.$Field->columnname._em_;?>" class="ajxwarning errorMessage tooltipImages bb2" style="display:none">Stock Type cannot be blank.</div>
+
+		<?php if($Block->Fields[0]->tablename =='contractorattendancedata' && $Field->columnname == 'code'){?>
+		<select id="contractorattendancedata_<?php echo $cnt_multiple_product?>_<?php echo $Field->columnname;?>" name="contractorattendancedata[<?php echo $cnt_multiple_product?>][<?php echo $Field->columnname;?>]" class="<?php echo $Field->classname;?>">
+		<option value="">Select an Option</option>
+		<?php foreach($manpower as $key=>$manpowername){?>
+		<option value="<?php echo $manpowername['code'];?>"><?php echo $manpowername['code'];?></option>
+		<?php }?>
+		</select>
+
+		<?php } else if($Block->Fields[0]->tablename =='contractorattendancedata' && $Field->columnname=='machine_dumper_no') { ?>
+		<select id="contractorattendancedata_<?php echo $cnt_multiple_product?>_<?php echo $Field->columnname;?>" name="contractorattendancedata[<?php echo $cnt_multiple_product?>][<?php echo $Field->columnname;?>]" class="<?php echo $Field->classname;?>">
+		<option value="">Select an Option</option>
+		</select>
+
+		<?php } else if($Block->Fields[0]->tablename =='contractorattendancedata' && $Field->columnname=='att_status') { ?>
+		<select id="contractorattendancedata_<?php echo $cnt_multiple_product?>_<?php echo $Field->columnname;?>" name="contractorattendancedata[<?php echo $cnt_multiple_product?>][<?php echo $Field->columnname;?>]" class="<?php echo $Field->classname;?>">
+		<?php foreach($attst as $key=>$attstatus){?>
+		<option value="<?php echo $attstatus['statusid'];?>"><?php echo $attstatus['statusname'];?></option>
+		<?php } ?>
+		</select>
+
+		<?php } else if($Block->Fields[0]->tablename =='contractorattendancedata' && $Field->columnname=='equipment_type') { ?>
+		<select id="contractorattendancedata_<?php echo $cnt_multiple_product?>_<?php echo $Field->columnname;?>" name="contractorattendancedata[<?php echo $cnt_multiple_product?>][<?php echo $Field->columnname;?>]" class="<?php echo $Field->classname;?>">
+		<option value="">Select an Option</option>
+		<?php foreach($machinetype as $key=>$machinetypes){?>
+		<option value="<?php echo $machinetypes['typeid'];?>"><?php echo $machinetypes['type'];?></option>
+		<?php } ?>
+		</select>
+
+		<?php } else { ?>	
+		<?php echo CHtml::dropDownList($attr_name, '',$fieldoptions,array('empty' => 'Select an Option','class'=>$Field->classname,'id'=>$attr_id));
+		}?>
+	</td>
+				
+	<?php	elseif($Field['uitype']==12): ?>
+		<td class="<?php echo $Field->td_classname;?>">	<!--uitype is 12-->
+		<span role="status" aria-live="polite" class="ui-helper-hidden-accessible"></span>
+		<?php //echo $Block->Fields[0]->tablename."and fieldname=". $Field->fieldname; ?>
+		<div id="<?php echo $Field->columnname.'id'.$cnt_multiple_product.'_em_';?>" class="ajxwarning errorMessage tooltipImages bb5" style="display:none">Product Name cannot be blank.</div>
+			<div class="input-group inputwidth">
+				<span class="input-group-addon">
+					<span class="glyphicon glyphicon-remove-circle cursorPointer text-info" type="button" onclick="<?php echo $obj_name; ?>RemoveValue('<?php echo $Field->columnname ?>','<?php echo $cnt_multiple_product ?>');"></span>
+				</span>
+				<!--<span role="status" aria-live="polite" class="ui-helper-hidden-accessible"></span>-->
+				<input type="text" value="" id="<?php echo $Field->columnname.$cnt_multiple_product;?>" name ="<?php echo $Field->columnname.$cnt_multiple_product;?>" size=12 class="<?php echo $Field->classname;?>" readonly="readonly" autocomplete="off">
+				<input type="hidden" value="" id="<?php echo $Field->columnname.'id'.$cnt_multiple_product;?>" name ="<?php echo $attr_name;?>" >
+		</div>
+		</td>
+		<?php	elseif($Field['uitype']==18): ?>
+		<td class="<?php echo $Field->td_classname;?>">	<!--uitype is 12-->
+			<span role="status" aria-live="polite" class="ui-helper-hidden-accessible"></span>
+			<div id="<?php echo $Field->columnname.'id'.$cnt_multiple_product.'_em_';?>" class="ajxwarning errorMessage tooltipImages bb5" style="display:none">Product Name cannot be blank.</div>
+			<div class="input-group inputwidth">
+				<span class="input-group-addon">
+					<span class="glyphicon glyphicon-remove-circle cursorPointer text-info" type="button" onclick="<?php echo $obj_name; ?>RemoveValue('<?php echo $Field->columnname ?>','<?php echo $cnt_multiple_product ?>');"></span>
+				</span>
+				<!--<span role="status" aria-live="polite" class="ui-helper-hidden-accessible"></span>-->
+				<input type="text" value="" id="<?php echo $Field->columnname.$cnt_multiple_product;?>" name ="<?php echo $Field->columnname.$cnt_multiple_product;?>" size=12 class="<?php echo $Field->classname;?>" <?php echo (strpos($Field->classname, 'ReadOnly') !== false ? 'readonly="readonly"' : "");?> autocomplete="off">	
+				<input type="hidden" value="" id="<?php echo $Field->columnname.'id'.$cnt_multiple_product;?>" name ="<?php echo $attr_name;?>" >
+				<span class="transearch input-group-addon">
+					<span type="button" class="glyphicon glyphicon-search cursorPointer text-info" data-toggle="modal" data-target="#myModal22" onclick="showProductlistPop('<?php echo $cnt_multiple_product;?>','<?php echo $Field->columnname;?>','<?php echo $Field->relatedmodulename;?>','<?php echo $Field->fieldid;?>')"></span>
+
+				</span>
+			</div>
+		</td>
+		<!-- month year -->
+		<?php elseif($Field['uitype']==15):?>
+		<td class="<?php echo $Field->td_classname;?>"><?php 
+			if (strpos($Field->classname, 'ReadOnly') !== false) 
+			echo CHtml::textField($attr_name, '',array('id'=>$attr_id,'class'=>$Field->classname,'readonly'=>true));
+			else
+			echo CHtml::textField($attr_name, '',array('id'=>$attr_id,'class'=>$Field->classname));
+			?>
+			<div id="<?php echo $attr_id.'_em_';?>" class="ajxwarning errorMessage tooltip_img bb6" style="display:none;"></div>
+		</td>
+		<?php elseif($Field['uitype']==22):?>
+		
+		<?php 		$PickList=new MultiList;
+		$PickList->fieldid=$Field->fieldid;
+		$fieldoptions=$PickList->getMultiListOption($ModuleName); ?>
+	 	<td class="<?php echo $Field->td_classname;?> multi_chosen">
+		<?php 
+		if($RecordID !=''){
+		$vals	= explode(",",$Record->{$field['columnname']});
+		$selected =array();
+		foreach($vals as $val){
+		$selected[$val] = array('selected' => 'selected');
+		}
+		}
+		echo CHtml::listBox($attr_name, '',$fieldoptions,array('class'=>'form-control inputwidth multi-select resean-select','id'=>$attr_id,'multiple' => 'true','value'=>$field['columnname']));
+		?>
+		</td>
+		<?php elseif($Field['uitype']==13):?>
+
+		<td>
+		<div id="<?php echo $attr_id.'_em_';?>" class="ajxwarning errorMessage <?php echo $tooltip_class;?> bb1" style="display:none;"></div>
+		<input  type="hidden" name="<?php echo $attr_name;?>" id="<?php echo $attr_id.'_dt';?>" value="<?php echo $field['columnname'];?>" />
+		<input class="form-control dtpick <?php echo $Field->classname;?>" type="text" id="<?php echo $attr_id;?>" value="<?php echo $field['columnname'];?>" autocomplete="off" readonly/>
+		</td>
+
+<?php elseif ($Field['uitype'] == 27): ?>
+            <td>
+                <div id="<?php echo $attr_id . '_em_'; ?>"
+                     class="ajxwarning errorMessage tooltip_img bb1" style="display:none;"></div>
+                <input type="hidden" name="<?php echo $attr_name; ?>" id="<?php echo $attr_id . '_jqdt'; ?>"
+                       value="<?php echo $field['columnname']; ?>"/>
+                <input class="form-control inputwidth jqdt <?php echo $Field->classname; ?>" type="text"
+                       id="<?php echo $attr_id; ?>" value="<?php echo $field['columnname']; ?>" autocomplete="off"/>
+            </td>
+
+		<?php endif;?>
+
+	<?php endif;?>
+<?php endforeach;?>
+</tr>
+<script>
+	$('.dtpick').change(function(){	
+		var id = $(this).attr('id');
+		var vals = $(this).val();
+		var new_Date = vals.split('-').reverse().join('-'); 
+		$('#'+id+'_dt').val(new_Date);
+	});
+	$(".dtpick").each(function(){
+	var id = $(this).attr('id');
+	var vals = $(this).val();
+		$( "#"+id ).datepicker({
+			changeMonth: true,
+			changeYear: true,
+			dateFormat: 'dd-mm-yy',
+		});
+	});
+</script>
+<script src="<?php echo Yii::app()->baseUrl . '/js/Tetra/jqdt.js' ?>"></script>

@@ -1,0 +1,61 @@
+/* 
+ * Dashboard Layout Clean-up 
+ * Note: Most visual styles have been moved to dashboard-premium.css 
+ */
+
+.grid-stack-item {
+  margin: 0 !important;
+}
+
+.grid-stack-item .card,
+.grid-stack-item .card-body,
+.grid-stack-item .custom-chart-card,
+.card-header,
+.card-footer {
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+.widget-box {
+  padding: 0 !important;
+  margin: 12px !important; /* Increased spacing for better glass separation */
+  background: transparent !important;
+}
+
+/* Functional Table Styles (Preserved for logic, visual overrides in premium) */
+.table-scroll {
+  overflow-x: auto;
+  width: 100%;
+}
+
+.table-body-scroll {
+  max-height: 350px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.cell-text-wrap {
+  white-space: normal !important;
+  word-wrap: break-word;
+}
+
+.scroll-custom-table-container {
+    max-height: 400px;
+    overflow-y: auto;
+    display: block;
+    padding: 0 !important;
+}
+
+.custom-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.custom-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}

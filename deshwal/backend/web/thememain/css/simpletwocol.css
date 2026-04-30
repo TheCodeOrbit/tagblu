@@ -1,0 +1,60 @@
+	.red {
+		color: #f00;
+	}
+	/*for reference model*/
+	.vendor-input-wrapper {
+	position: relative;
+	display: flex;
+	align-items: center;
+}
+
+.ref-form-control {
+	width: 100%;
+	padding-left: 30px; /* Space for the left icon */
+	padding-right: 60px; /* Space for the two right icons */
+	 /* adding transparent readonly */
+    background: transparent;
+    color: black;
+    pointer-events: none;
+    user-select: none;
+}
+
+.icon-left, .icon-right {
+	position: absolute;
+	cursor: pointer;
+}
+
+.icon-left {
+	left: 10px;
+}
+
+.search-icon {
+	right: 10px; /* Position search icon closer to the text */
+}
+/* plus icon is removed from refrence type on date 20-6-25 on client requirement */
+/*.plus-icon {
+	right: 10px; /* Position plus icon at the far right */
+/*}*/
+
+.form-container-cst {
+ display: flex;
+  flex-wrap: wrap;
+  gap: 16px; /* Spacing between fields */
+  justify-content: flex-start; /* Align fields at the start */
+}
+
+.form-field-cst {
+  flex: 1 1 calc(50% - 16px); /* Default to 50% width */
+  max-width: calc(50% - 16px); /* Prevent from going beyond 50% */
+  min-width: 200px; /* Ensure a reasonable minimum width */
+}
+@media (max-width: 768px) {
+  .form-field-cst {
+    flex: 1 1 100%; /* Full width on small screens */
+  }
+}
+
+.opt-none:hover{
+	background: none !important;
+
+}

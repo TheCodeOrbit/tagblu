@@ -1,0 +1,13 @@
+.select2-container .select2-dropdown {
+    z-index: 9999 !important;
+  }
+  .select2-dropdown {
+    z-index: 9999; /* Ensure dropdown isn't hidden behind other elements */
+  }
+  .select2-container--default .select2-selection--single {
+    height: calc(2.25rem + 2px); /* Matches Bootstrap's input height */
+    border: 1px solid #ced4da; /* Matches Bootstrap's border color */
+    border-radius: 0.25rem; /* Matches Bootstrap's border radius */
+    padding: 0.375rem 0.75rem; /* Matches Bootstrap's padding */
+    /* font-size: 1rem; Matches Bootstrap's font size */
+}

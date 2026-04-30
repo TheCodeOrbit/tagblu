@@ -1,0 +1,419 @@
+
+<script src="<?php echo Yii::app()->request->baseUrl; ?>/js/chosen.jquery.min.js"></script>
+
+<script src="<?php echo Yii::app()->request->baseUrl; ?>/js/jquery.inputmask.bundle.js"></script>
+
+<?php
+$siteDir = Yii::app()->params['dirName'];
+$ModuleName=$ActionList['ModuleName'];
+$ModuleType=$ActionList['ModuleType'];
+$ActionName=$ActionList['ActionName'];
+$isDepotUser=$ActionList['isDepotUser'];
+$ModuleLabel=$ActionList['ModuleLabel'];
+$depotcode=$_SESSION[$siteDir.'_depot_code'];
+$_SESSION['countpro']="";
+$_SESSION['taxcounterr']="";
+$sesionid=$_SESSION[$siteDir.'_id'];
+$invmngrule = $ActionList['invmngrule_details']['invmngrule'];
+if($_SESSION['blastnoc'] == '')
+	{$bno=($cnt_multiple_product+1) ;
+		$_SESSION['blastnoc'] =$bno;
+	}
+//echo "<pre>";print_r($invmngrule);exit;
+
+//echo "<br>ModuleName=$ModuleName and ActionName=$ActionName";
+$ActionUrl=Yii::app()->createAbsoluteUrl($ModuleName)."/";
+//echo "<br>ActionUrl=$ActionUrl";
+$this->pageTitle=Yii::app()->name . " - $ModuleName";
+//$this->breadcrumbs=array('Customer',);
+$fullurl = Yii::app()->request->getUrl();
+//echo $fullurl ; exit ;
+?>
+<script type="text/javascript">var fullurl = "<?= $fullurl ?>";</script>
+<script src="<?php echo Yii::app()->request->baseUrl; ?>/js/cookie.js"></script>
+<link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/css/jquery.datetimepicker.css"/>
+<div id="myModal22" class="modal fade" role="dialog"></div>
+<div id="BatchList" class="modal fade" role="dialog"></div>
+
+ <div id="AddDrill" class="">
+	
+		
+			<?php $form=$this->beginWidget('CActiveForm', array( 
+			'enableClientValidation'=>true,
+			'clientOptions'=>array( 'validateOnSubmit'=>true, ), )); 
+			
+			
+				
+				$currentdate=date('Y-m-d'); 
+				$finaldate =strtolower(date("Y-m-d", strtotime("-1 day" , strtotime( $currentdate ))));
+
+				$currentdate1=date('d-m-Y'); 
+				$finaldateshow =strtolower(date("d-m-Y", strtotime("-1 day" , strtotime( $currentdate1 ))));
+			?>
+
+			<span class="note">Fields with <span class="required star">&nbsp;*&nbsp;</span> are required.</span>
+			<input type="hidden" value="<?php echo $ActionName; ?>" id="mode" name="mode"/>
+			<input type="hidden" value="<?php echo $RecordID; ?>" id="recordid" name="recordid"/>
+			<input type="hidden" value="<?php echo $ModuleName; ?>" id="module" name="module"/>
+			<input type="hidden" id="inv_mng_rule" value="<?php echo $invmngrule; ?>">
+			<input type="hidden" value="<?php echo $sesionid; ?>" id="sesionid" name="sesionid"/>
+			<input type="hidden" value="<?php echo $finaldate; ?>" id="finaldate" name="finaldate"/>
+			<input type="hidden" value="<?php echo $finaldateshow; ?>" id="finaldateshow" name="finaldateshow"/>
+			
+				
+			
+			<div class="topcontent-details"><!-- topcontent starts -->
+			 <div class="body-menu flex jc-spbt ai-cntr">
+                <div>
+                    <p class="body-heading"><?php echo $ActionName.' '.$ModuleLabel;?> Data</p>
+                </div>
+                <div class="flex jc-spbt ai-cntr">
+                <?php 
+				$grand_total=false;
+				foreach($ColumnList->Blocks as $BlockKey=>$Block):?>		
+
+				<?php if($Block->blocktype=="Simple"): ?>
+					
+				<?php $counter=1;foreach($Block->Fields as $field): ?>
+					
+					<?php if($field['uitype']==8):?>
+					
+			<?php echo $form->error($model,$field['fieldname'], array('class'=>'ajxwarning errorMessage')); ?>
+								<?php echo $form->{$field[fieldtype]}($model,$field['fieldname'], $field['fieldoptions'],array('class' => 'form-select w-150px','value'=>$field['columnname'],'empty'=>'Select Shift','options' => array($Record->{$field['columnname']}=>array('selected'=>true)))); ?>
+
+					<?php elseif($field['uitype']==1):?>
+
+					<?php echo $form->error($model,$field['fieldname'], array('class'=>'ajxwarning errorMessage')); ?>
+					<?php echo $form->{$field[fieldtype]}($model,$field['columnname'], array ('autocomplete' => 'new-password','class' => $field["classname"].' form-control inputwidth','value'=>$Record->{$field['columnname']}));?>
+
+					<?php elseif($field['uitype']==13):
+						include 'uitype/Date.php'; ?>
+					<?php endif;?>
+				<?php endforeach;?>
+                    
+                    <?php endif;?>
+                   <?php endforeach;?>
+                </div>
+                <div>
+
+		<?php //echo CHtml::submitButton('Save', array('class' => 'btn btn-primary input-save','id'=>'showModel','data-bs-toggle'=>'modal','data-bs-target'=>'#exampleModal')); ?>	
+									<?php if($ActionName=="Create"){ ?>
+                    <button type="button" id="showModel" class="btn btn-primary input-save" data-bs-toggle="modal" data-bs-target="#exampleModal">SAVE</button>
+									<?php }  else {?>
+										<?php echo CHtml::submitButton('Submit', array('class' => 'btn btn-primary input-save me-5 close')); ?>	
+										<?php echo CHtml::submitButton('Discard', array('name' => 'btncancel','class' => 'btn btn-primary input-save me-5 close')); ?>
+									<?php } ?>
+                </div>
+            </div>
+				<!--<div class="row">
+					<div class="col-sm-8">
+						<h4 class="h4 page-heading no-gutter"><?php echo $ActionName.' '.$ModuleLabel;?> Data</h4> 
+					</div>
+					
+					<div class="col-sm-4">
+						<div class="pull-right" role="group" aria-label="...">
+							<?php echo CHtml::submitButton('Save', array('class' => 'btn topcontent-savebtn')); ?>
+							<? echo '&nbsp;&nbsp;&nbsp;'; ?>
+							<?php echo CHtml::submitButton('Discard', array('name' => 'btncancel','class' => 'btn topcontent-discardbtn')); ?>
+						</div>
+					</div>
+				</div> -->
+				<!--<div class="row">
+					<div class="col-sm-12">
+						<?php if($ActionList['ErrorMsg'] != ''): ?>
+						<div class="alert alert-danger top-alert-error">
+						 <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+						 <strong><?php echo $ActionList['ErrorMsg'];?></strong>
+						</div>	
+						<?php endif; ?>
+					</div>
+				</div>-->
+			</div><!-- topcontent ends -->
+
+		
+
+		
+ <?php 
+				$grand_total=false;
+				foreach($ColumnList->Blocks as $BlockKey=>$Block):?>		
+
+				
+			<?php 
+				//echo "<br>block type=".$Block->blocktype;
+				if($Block->blocktype=="Multiple"):
+				$obj_name="";
+				$multiplebloackid=$Block->blockid;
+				foreach ($Block->Fields as $key=> $Field):
+					if($obj_name=="")
+					{
+						$obj_name=$Field->tablename;
+						break;
+					}
+				endforeach;	
+
+				$multipleobjname=$obj_name;
+
+				endif;
+			?>
+
+			<?php if($Block->blocktype=="Multiple"):
+				$obj_name="";
+				foreach ($Block->Fields as $key=> $Field):
+					if($obj_name=="")
+					{
+						$obj_name=$Field->tablename;
+						//if($obj_name=="ReceiveProduct")
+						//$obj_name="ReceiptProduct";
+						break;
+					}
+				endforeach;
+			?>
+
+			<input type="hidden" name="multiple_block_id" id="multiple_block_id" value="block_<?php echo $Block->blockid;?>" />
+			
+			<!-- Multiple Block Code Start -->
+			<div class="body-container">
+                <div class="body-outline">
+                    <table id="Tbl_<?php echo $obj_name;?>">
+                        <tr>
+                        	<?php foreach ($Block->Fields as $key=> $Field): ?>
+                        	<th><?php echo $Field->fieldlable;?></th>
+                        	<?php endforeach;?>
+													<?php if($ActionName=="Create"){ ?>
+                        	<th class="deleteTool">Tools</th>
+													<?php }?>
+                        	
+                            <!--<th>Drilling material</th>
+                            <th>Drill Machine No.</th>
+                            <th>Working Area</th>
+                            <th>No of Holes Drilled</th>
+                            <th>Burden(m)</th>
+                            <th>Hole Depth(m)</th>
+                            <th>Spacing(m)</th>
+                            <th>Type of Drilling</th>
+                            <th>Bench Height(m)</th>
+                            <th>Tools</th>-->
+                        </tr>
+                        
+                        <?php
+					$cnt_multiple_product=count($Record[Multiple_Records][$Block->blockid]);
+					//$cnt_multiple_product=1;
+					$tablename2="depot";
+							$modelss=new Reference($tablename2);
+							if($Field->edit_view==1)
+							{
+								$aa="$MPkey";
+								if($_SESSION['countpro'] == '')
+							{	
+								$aa++;			
+								//$_SESSION['countpro'] =$aa;
+								$_SESSION['countpro'] =$cnt_multiple_product;
+							}
+						}
+						echo "<script type='text/javascript'>cnt_multiple_product='$cnt_multiple_product';cnt_multiple_product=parseInt(cnt_multiple_product)+1;</script>";
+
+		//$cnt_multiple_product=1;
+						if($cnt_multiple_product>0){
+				foreach($Record[Multiple_Records][$Block->blockid] as $MPkey=> $Multiple_Record){ $tax_html="";?>
+                        <?php //echo "<br>cnt_multiple_product >0  case";?>
+                        <tr class="prodlist">
+                        <?php
+								//print_r($Multiple_Record);
+								//die;
+								foreach($Block->Fields as $key=> $Field){
+								//print_r($Field);
+								//die;
+								?>
+								
+								<?php	if($Field['uitype']==1){
+									if($ModuleName == 'p_reconciliation' || $ModuleName == 'ce_p_reconciliation'){?>
+									<td class="<?php echo $Field->td_classname;?>">
+										<?php $MPkeys =$MPkey +1;
+										$fldname="$Field->fieldname"; 						
+										?>	
+										<?php echo $form->error(${$obj_name},"[$MPkeys]$Field->fieldname", array('class'=>'ajxwarning errorMessage tooltip_img')); ?>				
+										<?php echo $form->textField(${$obj_name},"[$MPkeys]$Field->fieldname", array ('class' => $Field->classname,'value'=>$Multiple_Record->{$Field->fieldname},'readonly' => $readonly,'onkeyup' => $blastintfunc));?>
+									</td><?php } else { ?>
+									<td class="<?php echo $Field->td_classname;?>">
+										<?php $counterp="$MPkey";
+										$fldname="$Field->fieldname"; 						
+										?>	
+										<?php echo $form->error(${$obj_name},"[$MPkey]$Field->fieldname", array('class'=>'ajxwarning errorMessage tooltip_img')); ?>				
+										<?php echo $form->textField(${$obj_name},"[$MPkey]$Field->fieldname", array ('class' => $Field->classname,'value'=>$Multiple_Record->{$Field->fieldname},'readonly' => $readonly,'onkeyup' => $blastintfunc));?>
+									</td>
+
+								<?php } ?>
+								<?php } elseif($Field['uitype']==8){
+									if($ModuleName == 'p_reconciliation' || $ModuleName == 'ce_p_reconciliation'){
+										$MPkeys =$MPkey +1; ?>
+										<td class="<?php echo $Field->td_classname;?>">
+											<?php echo $form->error(${$obj_name},"[$MPkey]$Field->fieldname", array('class'=>'ajxwarning errorMessage tooltip_img')); ?>
+											<?php echo $form->dropDownList(${$obj_name},"[$MPkeys]$Field->fieldname", $Field['fieldoptions'],array('class' => $Field['classname'],'value'=>$Multiple_Record->{$Field->fieldname},'empty'=>'Select an Option','options' => array($Multiple_Record->{$Field->fieldname}=>array('selected'=>true)))); ?>
+										</td>
+
+									<?php } else { ?>
+									<td class="<?php echo $Field->td_classname;?>">
+										<div id="<?php   if($ModuleName == 'logisticsiding' and $Field->tablename=='siding_receipt'){echo $Field->tablename.'_'.$MPkey.'_'.$Field->columnname.'_em_';} else{  echo $Field->columnname.'id'.$MPkey.'_em_';  } ?>" class="ajxwarning errorMessage tooltipImages bb2" style="display:none">Stock Type cannot be blank.</div>
+										<?php	//echo $form->textField(${$obj_name},"[$MPkey]$Field->fieldname", array ('class' => $Field->classname,'value'=>$Multiple_Record->{$Field->fieldname})); ?>
+										<?php echo $form->dropDownList(${$obj_name},"[$MPkey]$Field->fieldname", $Field['fieldoptions'],array('class' => 'form-select w-150px','aria-label'=>'select example','value'=>$Multiple_Record->{$Field->fieldname},'empty'=>'Select an Option','options' => array($Multiple_Record->{$Field->fieldname}=>array('selected'=>true)))); ?>
+									</td>
+
+								<?php }
+
+										}
+
+
+									?>
+
+
+							<?php }//Field foreach close ?>
+							
+								<!--<?php if($ModuleName != 'p_reconciliation' AND $ModuleName != 'ce_p_reconciliation' and $ModuleName != 'cecontractor' and $ModuleName != 'production' and $ModuleName != 'obr_contractor' and $Block->blockid !='13' and $Block->blockid !='24' and $Block->blockid !='57' and $Block->blockid !='58'){?>
+								<td class="<?php echo $obj_name;?>Delete text-center" id="<?php echo $Block->Fields[0]->tablename.'_'.$MPkey.'_Delete'?>"><svg viewBox="0 0 18 19" class="action-icon">
+                                    <path d="M5.14414 15.2656H12.8539L13.2793 6.26562H4.71875L5.14414 15.2656Z" fill="#2F80ED"/>
+                                    <path d="M15.1875 5H12.9375V3.59375C12.9375 2.97324 12.433 2.46875 11.8125 2.46875H6.1875C5.56699 2.46875 5.0625 2.97324 5.0625 3.59375V5H2.8125C2.50137 5 2.25 5.25137 2.25 5.5625V6.125C2.25 6.20234 2.31328 6.26562 2.39062 6.26562H3.45234L3.88652 15.459C3.91465 16.0584 4.41035 16.5312 5.00977 16.5312H12.9902C13.5914 16.5312 14.0854 16.0602 14.1135 15.459L14.5477 6.26562H15.6094C15.6867 6.26562 15.75 6.20234 15.75 6.125V5.5625C15.75 5.25137 15.4986 5 15.1875 5ZM6.32812 3.73438H11.6719V5H6.32812V3.73438ZM12.8549 15.2656H5.14512L4.71973 6.26562H13.2803L12.8549 15.2656Z" fill="#2F80ED"/>
+                                </svg></td>
+								<?php }?>-->
+                        
+                        </tr>
+                        	
+                        <?php }?>
+
+						
+						<?php }?>
+                    </table>
+									<?php if($ActionName=="Create"){ ?>
+                        	
+													
+                    <div class="add-btn flex jc-cntr ai-cntr" id="Add<?php echo $obj_name;?>" rel="<?php echo $Block->blockid;?>">
+                        <svg width="16" height="16" viewBox="0 0 16 16">
+                            <path d="M6 16H10V10H16V6H10V0H6V6H0V10H6V16Z"/>
+                        </svg>                        
+                    </div>
+									<?php }?>
+                </div>
+            </div>
+            <!-- Multiple Block Code End -->
+            <?php //endif;?>
+			
+
+
+	
+
+		<?php endif;?>
+
+
+
+
+			<?php //endforeach;?>
+
+			<?php endforeach;?>
+
+		 <!-- All Modals -->
+    <!-- 1. PopUpConfirmation Add Drill-->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <!-- Todo: Onclick of Submit Show this alert -->
+        <div class="alert alert-success alert-dismissible fade hide" role="alert">
+            Data Saved Successfully
+        </div>
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+          <div class="modal-content">
+            <div class="modal-header jc-cntr">
+              <h5 class="modal-title text-center body-heading" id="exampleModalLabel">Add Drill Final Submit</h5>
+              <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
+            </div>
+            <div class="modal-body">
+		<table class="Tbl_<?php echo $obj_name;?>">
+
+		</table>
+                <!--<table>
+                    <tr>
+                        <th>Drilling material</th>
+                        <th>Drill Machine No.</th>
+                        <th>Working Area</th>
+                        <th>No of Holes Drilled</th>
+                        <th>Burden(m)</th>
+                        <th>Hole Depth(m)</th>
+                        <th>Spacing(m)</th>
+                        <th>Type of Drilling</th>
+                        <th>Bench Height(m)</th>
+                    </tr>
+                    <tr>
+                        <td>Coal</td>
+                        <td>CG4DM5376</td>
+                        <td>Salhi Pit</td>
+                        <td>889</td>
+                        <td>8.00</td>
+                        <td>8.00</td>
+                        <td>8.00</td>
+                        <td>Normal</td>
+                        <td>8.00</td>
+                    </tr>
+                </table> -->
+            </div>
+            <div class="modal-footer jc-cntr">
+		<?php echo CHtml::submitButton('Submit', array('class' => 'btn btn-primary input-save me-5 close')); ?>	
+                <!--<button type="button" class="btn btn-primary input-save me-5 close" data-dismiss="alert">submit</button>-->
+                <button type="button" class="btn btn-danger input-save" data-bs-dismiss="modal">Discard</button>
+            </div>
+          </div>
+        </div>
+    </div>  	
+			<?php $this->endWidget(); ?>
+		
+	
+</div> <!-- fullpage ends -->
+<script>
+	$(document).ready(function(){
+		var modulename = '<?php echo $ModuleName; ?>';
+		var mode = $('#mode').val();
+		if(mode=='Create'){
+			//alert("Create Mode");
+			//var block_id=$(this).attr('rel');
+			var block_id=3;
+			var geturl=getAbsoluteUrl();
+			var url=geturl+'index.php/dailydrilling/ProductBlock';
+								      	$.ajax({
+												type: 'POST',
+												url: url,
+												data:'cnt_multiple_product='+cnt_multiple_product+'&blockid='+block_id,
+												success:function(data){ 
+												$('#Tbl_drilling_data tr:last').after(data);
+												$(".drilling_type option[value='1']").attr("selected","selected");
+												$('.drilling_type').trigger("chosen:updated");
+												$(document.body).on('change', '.drilling_type' ,function(){
+															code	= $(this).attr('id');
+															codevals= $(this).val();
+															seq_no	= code.substring(14,code.indexOf('_drilling_type'));
+															if(codevals == 2 || codevals =='' ){
+															$("#drilling_data_"+seq_no+"_bench_height").attr('readonly',true);
+															}
+															else{
+															$("#drilling_data_"+seq_no+"_bench_height").attr('readonly',false);
+															}
+												});
+											  cnt_multiple_product=cnt_multiple_product+1;
+												$.getScript(geturl + '/js/Tetra/chosenCode.js');
+
+												},
+												error: function(data) { 
+												},
+												dataType:'html'    
+												});
+
+		}
+		if(modulename =='users'){
+			if(mode=='Create'){
+				$('#yw0').submit(function(e){
+				//alert(modulename);
+					e.stopImmediatePropagation();
+					var public_key=$('#publickey').val();
+					var user_pass=$('#EditModel_user_password').val();
+					
+					var enc_user_pass=CryptoJS.AES.encrypt(JSON.stringify(user_pass), public_key, {format: CryptoJSAesJson}).toString();
+					$('#EditModel_user_password').val(enc_user_pass);
+				});
+			}
+		}
+	});
+</script> 

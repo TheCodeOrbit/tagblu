@@ -1,0 +1,51 @@
+
+.multi-list-container {
+    display: flex;
+    flex-direction: column;
+    /*width: 60%;*/
+    margin: 0 auto;
+    /*padding: 20px;*/
+}
+/*
+input[type="text"] {
+    margin-bottom: 20px;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}*/
+
+.available-items, .added-items {
+    /*margin-bottom: 20px;*/
+}
+
+.availableList {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.item {
+    padding: 8px;
+    margin: 5px 0;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.item:hover {
+    background-color: #ddd;
+}
+
+.added-items li {
+    background-color: #3c77ff;
+}
+
+ .attendee {
+    display: inline-block;
+    padding: 5px 10px;
+    background: #eaf4ff;
+    color: #007bff;
+    font-size: 8px;
+    border-radius: 4px;
+    margin-left: 2px;
+  }

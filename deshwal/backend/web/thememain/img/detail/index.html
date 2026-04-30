@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Left Panel -->
+    <div class="left-panel">
+	 <div class="activity-section">
+<div class="collapsible-container">
+    <!-- About Section -->
+    <input type="checkbox" id="about-toggle">
+    <label class="collapsible-header" for="about-toggle">
+      About
+      <i class="fa-solid fa-angle-right"></i>
+    </label>
+    <div class="collapsible-content">
+      <p>This is the About section. You can add more details here.</p>
+    </div>
+
+    <!-- Get in Touch Section -->
+    <input type="checkbox" id="contact-toggle">
+    <label class="collapsible-header" for="contact-toggle">
+      Get in Touch
+      <i class="fa-solid fa-angle-right"></i>
+    </label>
+    <div class="collapsible-content">
+      <p>Contact information or a form can go here.</p>
+    </div>
+
+    <!-- Segment Section -->
+    <input type="checkbox" id="segment-toggle">
+    <label class="collapsible-header" for="segment-toggle">
+      Segment
+      <i class="fa-solid fa-angle-right"></i>
+    </label>
+    <div class="collapsible-content">
+      <p>Details about segments can be placed here.</p>
+    </div>
+
+    <!-- History Section -->
+    <input type="checkbox" id="history-toggle">
+    <label class="collapsible-header" for="history-toggle">
+      History
+      <i class="fa-solid fa-angle-right"></i>
+    </label>
+    <div class="collapsible-content">
+      <p>History or other related content goes here.</p>
+    </div>
+  </div>
+    </div>
+ </div>
+    <!-- Middle Panel -->
+    <div class="middle-panel">
+  
+      <div class="activity-section">
+	  <div class="filters">
+          <!-- Gray Icon (Phone) -->
+          <div class="toggle" onclick="showPopup('gray-popup')">
+            <div class="icon gray"><img src="Add call.svg"></div>
+            <div class="dropdown"><i class="fa-solid fa-caret-down"></i></div>
+          </div>
+
+          <!-- Purple Icon (Calendar) -->
+          <div class="toggle" onclick="showPopup('purple-popup')">
+            <div class="icon purple"><img src="Add Meeting.svg"></div>
+            <div class="dropdown"><i class="fa-solid fa-caret-down"></i></div>
+          </div>
+
+          <!-- Teal Icon (List) -->
+          <div class="toggle" onclick="showPopup('teal-popup')">
+            <div class="icon teal"><img src="Add task.svg"></div>
+            <div class="dropdown"><i class="fa-solid fa-caret-down"></i></div>
+          </div>
+        </div>
+
+    
+
+    
+    <div class="actions">
+        <a href="#">Refresh</a> • <a href="#">Expand All</a>
+    </div>
+       
+       
+        <div class="upcoming-overdue">
+           <div class="accordion upcoming-Overdue">
+    <!-- Accordion Item 1 -->
+    <div class="accordion-item">
+      <button class="accordion-header">
+        <span>Upcoming & Overdue</span>
+        <span class="arrow">▼</span>
+      </button>
+      <div class="accordion-content">
+        <div class="task-item">
+          <div class="task-icon">
+            <span><img src="Add call.svg"></span>
+          </div>
+          <div class="task-details">
+            <div class="task-title">
+              <input type="checkbox" id="task1">
+              <label for="task1">Call</label>
+            </div>
+            <p>You have an upcoming task</p>
+          </div>
+          <div class="task-right">
+            <span class="task-date overdue">10-Jan</span>
+               <div class="dropdown">
+              <button class="dropdown-btn"><i class="fa-regular fa-circle-play"></i></button>
+              <ul class="dropdown-menu">
+                <li><button>Delete</button></li>
+                <li><button>Edit</button></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+		        <div class="task-item">
+          <div class="task-icon-2">
+            <span><img src="Add Meeting.svg"></span>
+          </div>
+          <div class="task-details">
+            <div class="task-title">
+              <input type="checkbox" id="task1">
+              <label for="task1">Meeting</label>
+            </div>
+            <p>You have an upcoming task</p>
+          </div>
+          <div class="task-right">
+            <span class="task-date overdue">10-Jan</span>
+               <div class="dropdown">
+              <button class="dropdown-btn"><i class="fa-regular fa-circle-play"></i></button>
+              <ul class="dropdown-menu">
+                <li><button>Delete</button></li>
+                <li><button>Edit</button></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+		        <div class="task-item">
+          <div class="task-icon-3">
+            <span><img src="Add task.svg"></span>
+          </div>
+          <div class="task-details">
+            <div class="task-title">
+              <input type="checkbox" id="task1">
+              <label for="task1">Task</label>
+            </div>
+            <p>You have an upcoming task</p>
+          </div>
+          <div class="task-right">
+            <span class="task-date overdue">10-Jan</span>
+               <div class="dropdown">
+              <button class="dropdown-btn"><i class="fa-regular fa-circle-play"></i></button>
+              <ul class="dropdown-menu">
+                <li><button>Delete</button></li>
+                <li><button>Edit</button></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+		
+      </div>
+    </div>
+
+    <!-- Accordion Item 2 -->
+    <div class="accordion-item">
+      <button class="accordion-header">
+        <span>January • 2025</span>
+		 <span>This Month</span>
+        <span class="arrow">▼</span>
+      </button>
+      <div class="accordion-content">
+       <div class="task-item">
+          <div class="task-icon">
+		 
+            <span><img src="Add call.svg"></span>
+          </div>
+          <div class="task-details">
+            <div class="task-title">
+              <input type="checkbox" id="task1">
+              <label for="task1">Call</label>
+            </div>
+            <p>You have an upcoming task</p>
+          </div>
+          <div class="task-right">
+            <span class="task-date overdue">10-Jan</span>
+               <div class="dropdown">
+              <button class="dropdown-btn"><i class="fa-regular fa-circle-play"></i></button>
+              <ul class="dropdown-menu">
+                <li><button>Delete</button></li>
+                <li><button>Edit</button></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+          <button class="show-activities-btn">Show All Activities</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="right-panel">
+<div class="collapse-container">
+  <!-- Notes Section -->
+  <label class="collapse-header" for="toggle-notes">
+    <img src="note.png" alt="Notes Icon"> Notes 
+    <i class="fa-solid fa-plus icon-right"></i>
+  </label>
+  <input type="checkbox" id="toggle-notes" onchange="toggleCollapseIcon(this)">
+  <div class="collapse-content">
+    <p>This is the collapsible content for Notes. It can contain any HTML elements, such as text, images, or links.</p>
+  </div>
+</div>
+
+<div class="collapse-container">
+  <!-- Opportunities Section -->
+  <label class="collapse-header" for="toggle-opportunities">
+    <img src="opportunity_120.png" class="Opportunities" alt="Opportunities Icon"> Opportunities (1)
+    <i class="fa-solid fa-plus icon-right"></i>
+  </label>
+  <input type="checkbox" id="toggle-opportunities" onchange="toggleCollapseIcon(this)">
+  <div class="collapse-content">
+    <p style="color:#1391ff; font-size:16px">Sisco</p>
+    <p>Stage: Qualify</p>
+    <p>Amount: </p>
+    <p>Close Date: 31/03/2025</p>
+    <a href="#">View All</a>
+  </div>
+</div>
+
+<div class="collapse-container">
+  <!-- Document Section -->
+  <label class="collapse-header" for="toggle-documents">
+    <img src="file_120.png" class="document" alt="Document Icon"> Document (0)
+    <i class="fa-solid fa-plus icon-right"></i>
+  </label>
+  <input type="checkbox" id="toggle-documents" onchange="toggleCollapseIcon(this)">
+  <div class="collapse-content">
+    <div class="upload-section">
+      <button class="upload-btn">Upload Files</button>
+      <p>Or drop files</p>
+    </div>
+  </div>
+</div>
+
+  <!-- Popup Overlays -->
+  <!-- Gray Popup -->
+  <div class="popup-overlay" id="gray-popup" onclick="hidePopup(event)">
+    <div class="popup">
+      <button class="close-btn" onclick="hidePopup(event)">&times;</button>
+      
+      <div class="log-call-container">
+<h2>Phone</h2>
+    <form>
+        <div class="form-group call-form">
+            <label for="subject">Subject</label>
+            <input type="text" id="subject" value="Call">
+        </div>
+
+        <div class="form-group">
+            <label for="comments">Comments</label>
+            <textarea id="comments" placeholder="Tip: Type Control + period to insert quick text."></textarea>
+        </div>
+
+        <div class="inline-fields">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <div class="dropdown-search">
+                    <div class="icon">👤</div>
+                    <select id="name">
+                        <option value="">Search Contacts...</option>
+                        <option value="Kavita Rawat">Kavita Rawat</option>
+                        <option value="John Doe">John Doe</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="related">Related To</label>
+                <div class="dropdown-search">
+                    <div class="icon">🏢</div>
+                    <select id="related">
+                        <option value="">Search Accounts...</option>
+                        <option value="Account 1">Account 1</option>
+                        <option value="Account 2">Account 2</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit">Save</button>
+        </div>
+    </form>
+</div>
+    </div>
+  </div>
+
+  <!-- Purple Popup -->
+  <div class="popup-overlay" id="purple-popup" onclick="hidePopup(event)">
+    <div class="popup">
+      <button class="close-btn" onclick="hidePopup(event)">&times;</button>
+        <div class="log-call-container">
+<h2>Message</h2>
+    <form>
+        <div class="form-group call-form">
+            <label for="subject">Subject</label>
+            <input type="text" id="subject" value="Call">
+        </div>
+
+        <div class="form-group">
+            <label for="comments">Comments</label>
+            <textarea id="comments" placeholder="Tip: Type Control + period to insert quick text."></textarea>
+        </div>
+
+        <div class="inline-fields">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <div class="dropdown-search">
+                    <div class="icon">👤</div>
+                    <select id="name">
+                        <option value="">Search Contacts...</option>
+                        <option value="Kavita Rawat">Kavita Rawat</option>
+                        <option value="John Doe">John Doe</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="related">Related To</label>
+                <div class="dropdown-search">
+                    <div class="icon">🏢</div>
+                    <select id="related">
+                        <option value="">Search Accounts...</option>
+                        <option value="Account 1">Account 1</option>
+                        <option value="Account 2">Account 2</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit">Save</button>
+        </div>
+    </form>
+</div>
+    </div>
+  </div>
+
+  <!-- Teal Popup -->
+  <div class="popup-overlay" id="teal-popup" onclick="hidePopup(event)">
+    <div class="popup">
+      <button class="close-btn" onclick="hidePopup(event)">&times;</button>
+       <div class="log-call-container">
+<h2>Document</h2>
+    <form>
+        <div class="form-group call-form">
+            <label for="subject">Subject</label>
+            <input type="text" id="subject" value="Call">
+        </div>
+
+        <div class="form-group">
+            <label for="comments">Comments</label>
+            <textarea id="comments" placeholder="Tip: Type Control + period to insert quick text."></textarea>
+        </div>
+
+        <div class="inline-fields">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <div class="dropdown-search">
+                    <div class="icon">👤</div>
+                    <select id="name">
+                        <option value="">Search Contacts...</option>
+                        <option value="Kavita Rawat">Kavita Rawat</option>
+                        <option value="John Doe">John Doe</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="related">Related To</label>
+                <div class="dropdown-search">
+                    <div class="icon">🏢</div>
+                    <select id="related">
+                        <option value="">Search Accounts...</option>
+                        <option value="Account 1">Account 1</option>
+                        <option value="Account 2">Account 2</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit">Save</button>
+        </div>
+    </form>
+</div>
+    </div>
+  </div>
+
+<style>
+
+</style>
+
+<script>
+  function toggleCollapseIcon(checkbox) {
+    const labelIcon = checkbox.parentNode.querySelector('.icon-right');
+    if (checkbox.checked) {
+      labelIcon.classList.remove('fa-plus');
+      labelIcon.classList.add('fa-minus');
+    } else {
+      labelIcon.classList.remove('fa-minus');
+      labelIcon.classList.add('fa-plus');
+    }
+  }
+</script>
+ <script>
+    // Show popup
+    function showPopup(popupId) {
+      document.getElementById(popupId).style.display = 'flex';
+    }
+
+    // Hide popup
+    function hidePopup(event) {
+      if (event.target.classList.contains('popup-overlay') || event.target.classList.contains('close-btn')) {
+        event.target.closest('.popup-overlay').style.display = 'none';
+      }
+    }
+  </script>
+ <script>
+ document.querySelectorAll('.accordion-header').forEach(header => {
+  header.addEventListener('click', () => {
+    const content = header.nextElementSibling;
+
+    header.classList.toggle('active');
+    if (content.style.display === 'block') {
+      content.style.display = 'none';
+    } else {
+      content.style.display = 'block';
+    }
+  });
+});
+
+  </script>
+  
+  
+  <script>
+  document.querySelectorAll('.dropdown-btn').forEach(button => {
+  button.addEventListener('click', () => {
+    const dropdown = button.closest('.dropdown');
+    dropdown.classList.toggle('show');
+  });
+});
+
+document.addEventListener('click', (event) => {
+  if (!event.target.closest('.dropdown')) {
+    document.querySelectorAll('.dropdown').forEach(dropdown => dropdown.classList.remove('show'));
+  }
+});
+  
+  </script>
+  
+  
+  <script>
+  document.querySelectorAll('.dropdown-btn').forEach(button => {
+  button.addEventListener('click', () => {
+    const dropdown = button.closest('.dropdown');
+    dropdown.classList.toggle('show');
+  });
+});
+
+document.addEventListener('click', (event) => {
+  if (!event.target.closest('.dropdown')) {
+    document.querySelectorAll('.dropdown').forEach(dropdown => dropdown.classList.remove('show'));
+  }
+});
+  
+  </script>
+     
+    </div>
+  </div>
+
+</body>
+</html>

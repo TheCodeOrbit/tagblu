@@ -1,0 +1,763 @@
+$(document).ready(function () {
+  var newURL = window.location.href;
+  var newURL = window.location.href;
+  var module = "leads";
+  var str = newURL.split(module);
+  console.log("str" + str[0]);
+  // var slicestr=newURL.substring(0,str);
+  editusrl = str[0] + "leads/list";
+  console.log("url" + editusrl);
+
+  //check if any product if added
+  mode = $("#mode").val();
+  // if (mode == "Create") addRowBtn("62", "productdetail");
+  if (mode == "Create"){
+    addRowBtn('62', 'productdetail')
+  .then((message) => {
+    console.log(message); // "Data appended successfully"
+  })
+  .catch((error) => {
+    console.log(error); // "Error occurred while appending data"
+  });
+
+  } 
+  // produt changes observer
+  // Function to observe input value changes
+  function observeInputChanges(inputElement) {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (
+          mutation.type === "attributes" &&
+          mutation.attributeName === "value"
+        ) {
+          console.log(
+            `Value changed in ${inputElement.id}: ${inputElement.value}`
+          );
+          const nearestTr = inputElement.closest("tr");
+          if (nearestTr) {
+            trid = nearestTr.id;
+            console.log("Nearest <tr> ID:", nearestTr.id);
+            
+            getbaseprice(trid, `${inputElement.value}`);
+            getProductinfo(trid, `${inputElement.value}`);
+
+          } else {
+            nearestTr.id = "";
+            console.log("No <tr> ancestor found");
+          }
+        }
+      });
+    });
+
+    observer.observe(inputElement, {
+      attributes: true, // Observe attribute changes
+      attributeFilter: ["value"], // Only watch 'value' attribute
+    });
+
+    console.log(`Observer attached to input: ${inputElement.id}`);
+  }
+
+  // Function to observe all matching inputs
+  function observeMatchingInputs() {
+    // Match inputs with ID pattern 'productid_*1'
+    const inputs = document.querySelectorAll(
+      'input[id^="productid_"][id$="1"]'
+    );
+    inputs.forEach((input) => observeInputChanges(input));
+    console.log(`Observers attached to ${inputs.length} inputs.`);
+  }
+
+  // Function to monitor dynamically added inputs
+  function monitorDynamicInputs() {
+    const container = document.body; // Observe the entire document
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
+          mutation.addedNodes.forEach((node) => {
+            if (node.nodeType === 1) {
+              // Check for new matching inputs
+              const newInputs = node.querySelectorAll(
+                'input[id^="productid_"][id$="1"]'
+              );
+              // console.log("deepika");
+              newInputs.forEach((input) => observeInputChanges(input));
+            }
+          });
+        }
+      });
+    });
+
+    observer.observe(container, {
+      childList: true, // Detect added elements
+      subtree: true, // Include all child elements
+    });
+
+    console.log("Monitoring dynamic inputs for pattern: productid_*1");
+  }
+
+  // Initialize observers for existing and dynamic inputs
+  observeMatchingInputs();
+  monitorDynamicInputs();
+
+  // get productinfo
+  function getProductinfo(trid, productid) {
+    // alert(productid);
+    data = { productid: productid, _csrf: $("#csrfToken").val() };
+
+    $.ajax({
+      type: "POST",
+      url: "getproductinfo",
+      // async:false,
+      data: data,
+      success: function (response) {
+        console.log(response); // Log the entire response to check its structure
+
+        // Check if the data object exists and contains 'first_name'
+        if (response && response.data) {
+          $("#product_description_" + trid).val(
+            response.data.product_description
+          );
+          $("#hsn_code_" + trid).val(response.data.hsn_code);
+          $("#subcategory_" + trid).val(response.data.subcategory);
+          $("#category_" + trid).val(response.data.category);
+          $("#uom_" + trid).val(response.data.uom_value);
+          $("#cp_" + trid).val(response.data.cost_price);
+          // if (response.data.model)
+          $("#model_no_" + trid).val(response.data.model);
+          if (response.data.make) $("#make_" + trid).val(response.data.make);
+          // alert(response.data.cost_price);
+          $("#calculated_sp_" + trid).val(response.data.cost_price);
+
+          //   $("#warehouse_state").val(response.data.state);
+          //   $("#warehouse_state_code").val(response.data.statecode);
+          //   $("#warehouse_gstin_no").val(response.data.gstn);
+          //   $("#warehouse_pincode").val(response.data.pincode);
+        } else {
+          console.log("Invalid response format or missing data");
+        }
+      },
+      error: function (data) {
+        // if error occured
+
+        alert("Error occured.please try again");
+      },
+      dataType: "json",
+    });
+  }
+
+  //check changes on cgst.sgst ,igst
+  const cpinput = document.querySelectorAll(
+    'input[id^="cp_"], input[id^="cgst_"], input[id^="sgst_"],input[id^="igst_"],input[id^="quantity_required_"]'
+  );
+
+  cpinput.forEach((input) => {
+    input.addEventListener("change", function () {
+      const nearestTr = input.closest("tr");
+      if (nearestTr) {
+        trid = nearestTr.id;
+        // console.log('Nearest <tr> ID:', nearestTr.id);
+        // alert(trid);
+        calgst(trid);
+      } else {
+        nearestTr.id = "";
+        console.log("No <tr> ancestor found");
+      }
+    });
+  });
+  // new logic
+  // Event listeners for CP and Quantity fields in each row
+  document.addEventListener("input", function (event) {
+    if (
+      event.target.classList.contains("cp") ||
+      event.target.classList.contains("quantity_required") ||
+      event.target.classList.contains("cgst") ||
+      event.target.classList.contains("sgst") ||
+      event.target.classList.contains("igst")
+    ) {
+      const row = event.target.closest(".product-row"); // Identify the specific row
+      // calculateRowPrice(row);
+    }
+  });
+  function calculateRowPrice(trid) {
+    // alert("sdfdsf"+trid);
+    cp = $("#cp_" + trid).val() || 0;
+    quantity_required = $("#quantity_required_" + trid).val() || 0;
+    cgst = $("#cgst_" + trid).val() || 0;
+    sgst = $("#sgst_" + trid).val() || 0;
+    igst = $("#igst_" + trid).val() || 0;
+    totalcost = cp * quantity_required;
+    cgstamout = (cgst / 100) * totalcost;
+    sgstamout = (sgst / 100) * totalcost;
+    igstamout = (igst / 100) * totalcost;
+    totalcostwithprice = totalcost + cgstamout + sgstamout + igstamout;
+    // alert(totalcostwithprice);
+    $("#gst_amount_" + trid).val(cgstamout);
+    $("#sgst_amount_" + trid).val(sgstamout);
+    $("#igst_amount_" + trid).val(igstamout);
+    $("#total_cp_" + trid).val(totalcost);
+    $("#total_price_" + trid).val(totalcostwithprice);
+    // calctotalamt();
+  }
+  function calctotalamt() {
+    const gst_amount = document.querySelectorAll('input[id^="gst_amount_"]');
+    cpinput.forEach((input) => {
+      console.log(input.value);
+    });
+  }
+
+  // $(document).on('click', '.savebutton', function(e) {
+  //   var form = document.getElementById("pristine-valid-example");
+  // var pristine = new Pristine(form);
+
+  //   // $('.savebutton').click(function(e){
+  //                 console.log("clicked");
+
+  //                 var isValid = true;
+  //                 console.log("teregdfg fh");
+
+  //         var valid = pristine.validate();
+  //         if(valid && isValid){
+  //       form.submit();
+  //     }
+
+  // });
+
+  // location changes observer
+  function observeLocationChanges(inputElement) {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (
+          mutation.type === "attributes" &&
+          mutation.attributeName === "value"
+        ) {
+          console.log(
+            `Value changed in ${inputElement.id}: ${inputElement.value}`
+          );
+          const nearestTr = inputElement.closest("tr");
+
+          if (nearestTr) {
+            const trid = nearestTr.id;
+            console.log("Nearest <tr> ID:", trid);
+            checkGstType(trid);
+          } else {
+            console.log("No <tr> ancestor found");
+          }
+        }
+      });
+    });
+
+    observer.observe(inputElement, {
+      attributes: true,
+      attributeFilter: ["value"],
+    });
+
+    console.log(`Observer attached to input: ${inputElement.id}`);
+  }
+
+  // Function to observe all matching inputs
+  function observeAllLocation() {
+    const inputs = document.querySelectorAll(
+      'input[id^="billing_from_location_"], input[id^="shipping_from_location_"]'
+    );
+    inputs.forEach((input) => observeLocationChanges(input));
+    console.log(`Observers attached to ${inputs.length} inputs.`);
+  }
+
+  // Monitor dynamically added inputs
+  function monitorDynamicLocationInputs() {
+    const container = document.body; // Observe the entire document
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
+          mutation.addedNodes.forEach((node) => {
+            if (node.nodeType === 1) {
+              // Check for new matching inputs
+              const newInputs = node.querySelectorAll(
+                'input[id^="billing_from_location_"], input[id^="shipping_from_location_"]'
+              );
+              newInputs.forEach((input) => observeLocationChanges(input));
+            }
+          });
+        }
+      });
+    });
+
+    observer.observe(container, {
+      childList: true,
+      subtree: true,
+    });
+
+    console.log("Monitoring dynamic inputs for warehouses.");
+  }
+
+  // Initialize observers for warehouse fields
+  observeAllLocation();
+  monitorDynamicLocationInputs();
+
+  // Fetch GST type based on warehouse locations
+  function checkGstType(trid) {
+    let billLocation = $(`#billing_from_location_${trid}1`).val();
+    let shipLocation = $(`#shipping_from_location_${trid}1`).val();
+    let product_id = $(`#productid_${trid}1`).val();
+
+    console.log('billLocation ' + billLocation);
+    console.log('shipLocation ' + shipLocation);
+
+    if (billLocation && shipLocation) {
+      $.ajax({
+        url: "getlocationstates", // Yii2 controller action URL
+        type: "POST",
+        data: {
+          billLocation: billLocation,
+          shipLocation: shipLocation,
+          product_id: product_id,
+          _csrf: $("#csrfToken").val(),
+        },
+        dataType: "json",
+        success: function (response) {
+          console.log(response);
+          if (response.success) {
+            let billState = response.billState;
+            let shipState = response.shipState;
+            let gstRate = response.gst_percentage;
+            if (billState === shipState) {
+              // ✅ Apply CGST & SGST (Half GST each)
+              let halfGST = (gstRate / 2).toFixed(2);
+              $(`#cgst_${trid}`).val(halfGST);
+              $(`#sgst_${trid}`).val(halfGST);
+              $(`#igst_${trid}`).val(0);
+              setgst(trid);
+            } else {
+              // ✅ Apply IGST (Full GST)
+              $(`#cgst_${trid}`).val(0);
+              $(`#sgst_${trid}`).val(0);
+              $(`#igst_${trid}`).val(gstRate);
+              setgst(trid);
+
+            }
+          } else {
+            alert("Error fetching state codes.");
+          }
+        },
+        error: function () {
+          alert("Failed to fetch state data.");
+        },
+      });
+    }
+  }
+});
+
+
+$(document).on("click", ".remove-row-btn", function () {
+  var row = $(this).closest("tr");
+  row.remove(); // Remove the row from the table
+
+  updateTotals(); // Call function to update totals after deletion
+});
+
+// Function to recalculate totals after row deletion
+function updateTotals() {
+
+  var totalMarketing = 0;
+  $("[id^=marketing_expenses_]").each(function () {
+    var market_ex = parseFloat($(this).val()) || 0;
+    totalMarketing += market_ex;
+  });
+  $("#total_marketing_expenses").val(totalMarketing.toFixed(2));
+
+
+  var totalquotedInclusive = 0;
+  var totalquotedExclusive = 0;
+
+  $("[id^=total_quoted_price_inclusive_gst_]").each(function () {
+    var qin = parseFloat($(this).val()) || 0;
+    totalquotedInclusive += qin;
+  });
+
+  $("[id^=total_quoted_price_exclusive_gst_]").each(function () {
+    var qex = parseFloat($(this).val()) || 0;
+    totalquotedExclusive += qex;
+  });
+
+
+  $("#total_quoted_amt_inclusive_gst").val(totalquotedInclusive.toFixed(2));
+  $("#total_quoted_amt_exclusive_gst").val(totalquotedExclusive.toFixed(2));
+
+
+  var totalspInclusive = 0;
+  var totalspExclusive = 0;
+
+  $("[id^=total_sp_inclusive_gst_]").each(function () {
+    var sp_in = parseFloat($(this).val()) || 0;
+    totalspInclusive += sp_in;
+  });
+
+  $("[id^=total_sp_exclusive_gst_]").each(function () {
+    var sp_ex = parseFloat($(this).val()) || 0;
+    totalspExclusive += sp_ex;
+  });
+
+
+  $("#total_sp_amount_inclusive_gst").val(totalspInclusive.toFixed(2));
+  $("#total_sp_amount_exclusive_gst").val(totalspExclusive.toFixed(2));
+
+
+
+}
+
+
+
+
+//////////////////// on change SP make vendor1 and vendor2 mandatory /////////////////////////
+$(document).on(
+  "change",
+  "[id^=sp_inclusive_gst_], [id^=calculated_sp_],[id^=quoted_price_inclusive_gst_],[id^=marketing_expenses_],[id^=quantity_required_],[id^=direct_expenses_service_expens_1]",
+  function () {
+    //Loop through marketing expenses
+    var total = 0;
+    $("[id^=direct_expenses_service_expens_1]").each(function () {
+      var suffix = $(this).attr("id").match(/\d+$/)
+        ? $(this).attr("id").match(/\d+$/)[0]
+        : "";
+
+      getmargin(suffix);
+      settotal_qotedgst(suffix);
+      settotal_qotednogst(suffix);
+      setgst(suffix);
+    });
+    $("[id^=marketing_expenses_]").each(function () {
+      var suffix = $(this).attr("id").match(/\d+$/)
+        ? $(this).attr("id").match(/\d+$/)[0]
+        : "";
+      var me = parseFloat($(`#marketing_expenses_${suffix}`).val()) || 0;
+
+      total += me;
+      $("#total_marketing_expenses").val(total.toFixed(2));
+
+      getmargin(suffix);
+      settotal_qotedgst(suffix);
+      settotal_qotednogst(suffix);
+      setgst(suffix);
+    });
+    // Loop through all elements with ids starting with 'sp_inclusive_gst_'
+    var totalspgst = 0;
+    var totalsp = 0;
+    $("[id^=sp_inclusive_gst_]").each(function () {
+      var suffix = $(this).attr("id").match(/\d+$/)
+        ? $(this).attr("id").match(/\d+$/)[0]
+        : "";
+
+      if (suffix) {
+        var sp_inclusive_gst =
+          parseFloat($(`#sp_inclusive_gst_${suffix}`).val()) || 0;
+        var calculated_sp =
+          parseFloat($(`#calculated_sp_${suffix}`).val()) || 0;
+        var sp_exclusive_gst = (sp_inclusive_gst / 1.18).toFixed(2);
+        ``;
+        $(`#sp_exclusive_gst_${suffix}`).val(sp_exclusive_gst);
+
+        // Alert the value for debugging
+        // console.log(sp_inclusive_gst);
+
+        // Manipulate the vendor classes based on the comparison
+        var vendor1 = $(`#vendor1_${suffix}`);
+        var vendor2 = $(`#vendor2_${suffix}`);
+
+        if (sp_inclusive_gst > calculated_sp) {
+          vendor1.removeClass("V~O").addClass("V~M");
+          vendor2.removeClass("V~O").addClass("V~M");
+        } else {
+          vendor1.removeClass("V~M").addClass("V~O");
+          vendor2.removeClass("V~M").addClass("V~O");
+        }
+        getmargin(suffix);
+        settotalspgst(suffix);
+        settotalspnogst(suffix);
+
+        var total_sp_inclusive_gst = parseFloat($(`#total_sp_inclusive_gst_${suffix}`).val()) || 0;
+        totalspgst += total_sp_inclusive_gst;
+        $("#total_sp_amount_inclusive_gst").val(totalspgst.toFixed(2));
+
+        // alert(sp_exclusive_gst);
+        var total_sp_exclusive_gst = parseFloat($(`#total_sp_exclusive_gst_${suffix}`).val()) || 0;
+        totalsp += total_sp_exclusive_gst;
+        $("#total_sp_amount_exclusive_gst").val(totalsp);
+      }
+    });
+    $("[id^=quantity_required_]").each(function () {
+      var suffix = $(this).attr("id").match(/\d+$/)
+        ? $(this).attr("id").match(/\d+$/)[0]
+        : "";
+      // alert('fhfhfd');
+
+      getbaseprice(suffix);
+      setrowTotallogisticcost(suffix);
+      setTotallogisticcost();
+      settotalspgst(suffix);
+      settotalspnogst(suffix);
+      getmargin(suffix);
+      settotal_qotedgst(suffix);
+      settotal_qotednogst(suffix);
+      setgst(suffix);
+
+    });
+    var totalquotedgst = 0;
+    var totalquoted = 0;
+    $("[id^=quoted_price_inclusive_gst_]").each(function () {
+      var suffix = $(this).attr("id").match(/\d+$/)
+        ? $(this).attr("id").match(/\d+$/)[0]
+        : "";
+
+      var quoted_price_inclusive_gst =
+        parseFloat($(`#quoted_price_inclusive_gst_${suffix}`).val()) || 0;
+      var quoted_price_gst_exclude = (
+        quoted_price_inclusive_gst / 1.18
+      ).toFixed(2);
+      $(`#quoted_price_gst_exclude_${suffix}`).val(quoted_price_gst_exclude);
+      //get cgst
+      var cgstamt = quoted_price_inclusive_gst - quoted_price_gst_exclude;
+      // $(`#cgst_amount_${suffix}`).val(cgstamt.toFixed(2));
+
+      getmargin(suffix);
+      settotal_qotedgst(suffix);
+      settotal_qotednogst(suffix);
+      setgst(suffix);
+
+      var total_quoted_price_inclusive_gst = parseFloat($(`#total_quoted_price_inclusive_gst_${suffix}`).val()) || 0;
+
+      totalquotedgst += total_quoted_price_inclusive_gst;
+      $("#total_quoted_amt_inclusive_gst").val(totalquotedgst.toFixed(2));
+
+      var total_quoted_price_exclusive_gst = parseFloat($(`#total_quoted_price_exclusive_gst_${suffix}`).val()) || 0;
+
+      totalquoted += parseFloat(total_quoted_price_exclusive_gst);
+      $("#total_quoted_amt_exclusive_gst").val(totalquoted);
+    });
+  }
+);
+function settotalspgst(suffix) {
+  var sp_exclusive_gst =
+    parseFloat($(`#sp_inclusive_gst_${suffix}`).val()) || 0;
+  var quantity_required =
+    parseFloat($(`#quantity_required_${suffix}`).val()) || 0;
+  var total = (sp_exclusive_gst * quantity_required).toFixed(2);
+  $(`#total_sp_inclusive_gst_${suffix}`).val(total);
+}
+function settotalspnogst(suffix) {
+  var sp_exclusive_gst =
+    parseFloat($(`#sp_exclusive_gst_${suffix}`).val()) || 0;
+  var quantity_required =
+    parseFloat($(`#quantity_required_${suffix}`).val()) || 0;
+  var total = (sp_exclusive_gst * quantity_required).toFixed(2);
+  $(`#total_sp_exclusive_gst_${suffix}`).val(total);
+}
+function settotal_qotedgst(suffix) {
+  var quoted_price_inclusive_gst =
+    parseFloat($(`#quoted_price_inclusive_gst_${suffix}`).val()) || 0;
+  var quantity_required =
+    parseFloat($(`#quantity_required_${suffix}`).val()) || 0;
+  var total = (quoted_price_inclusive_gst * quantity_required).toFixed(2);
+  // alert(total);
+  $(`#total_quoted_price_inclusive_gst_${suffix}`).val(total);
+}
+function settotal_qotednogst(suffix) {
+  var quoted_price_gst_exclude =
+    parseFloat($(`#quoted_price_gst_exclude_${suffix}`).val()) || 0;
+  var quantity_required =
+    parseFloat($(`#quantity_required_${suffix}`).val()) || 0;
+  var total = (quoted_price_gst_exclude * quantity_required).toFixed(2);
+  $(`#total_quoted_price_exclusive_gst_${suffix}`).val(total);
+}
+function setgst(suffix) {
+  var cgst = $(`#cgst_${suffix}`).val();
+  var sgst = $(`#sgst_${suffix}`).val();
+  var igst = $(`#igst_${suffix}`).val();
+  var total_quoted_price_exclusive_gst = $(`#total_quoted_price_exclusive_gst_${suffix}`).val();
+  var cgstamt = (cgst * total_quoted_price_exclusive_gst) / 100;
+  var sgstamt = (sgst * total_quoted_price_exclusive_gst) / 100;
+  var igstamt = (igst * total_quoted_price_exclusive_gst) / 100;
+  // alert(igstamt);
+  $(`#cgst_amount_${suffix}`).val(cgstamt.toFixed(2));
+  $(`#sgst_amount_${suffix}`).val(sgstamt.toFixed(2));
+  $(`#igst_amount_${suffix}`).val(igstamt.toFixed(2));
+
+}
+function getmargin(suffix) {
+  var quoted_price_gst_exclude =
+    parseFloat($(`#quoted_price_gst_exclude_${suffix}`).val()) || 0;
+  var sp_exclusive_gst =
+    parseFloat($(`#sp_exclusive_gst_${suffix}`).val()) || 0;
+  var marketing_expenses =
+    parseFloat($(`#marketing_expenses_${suffix}`).val()) || 0;
+  var direct_expenses_service_expenses_total_qty =
+    parseFloat(
+      $(`#direct_expenses_service_expens_${suffix}`).val()
+    ) || 0;
+  var logistics_cost =
+    parseFloat(
+      $(`#logistics_cost_${suffix}`).val()
+    ) || 0;
+  var margin =
+    parseFloat(
+      sp_exclusive_gst - direct_expenses_service_expenses_total_qty - logistics_cost - marketing_expenses -
+      quoted_price_gst_exclude
+    ) || 0;
+  // alert(sp_exclusive_gst +'-'+ direct_expenses_service_expenses_total_qty +'-'+ logistics_cost +'-'+ marketing_expenses +'-'+ quoted_price_gst_exclude);
+
+  $(`#margin_${suffix}`).val(margin.toFixed(2));
+  if(sp_exclusive_gst >0)
+  var marginpercentge = parseFloat(margin / sp_exclusive_gst).toFixed(2) * 100;
+  else marginpercentge = 0;
+  $(`#margin_percentage_${suffix}`).val(marginpercentge);
+}
+
+////////////////////end SP, vendor1 , vendor2 /////////////////////////
+
+////////////calculate common margin and argin percenage/////
+$(document).on(
+  "change",
+  " #total_sourcing_deal_amount, #total_sourcing_deal_cost, #total_sourcing_deal_sale, #service_sale,#service_cost,#product_cost,#product_sale",
+  function () {
+    // Initialize total values for all rows
+    var total_sourcing_deal_sale = $("#total_sourcing_deal_sale").val() || 0;
+    var total_sourcing_deal_cost = $("#total_sourcing_deal_cost").val() || 0;
+    var totel_marketing_expenses = 0;
+
+    // Loop through all rows
+    $("[id^=marketing_expenses_]").each(function () {
+      var suffix = $(this).attr("id").match(/\d+$/)
+        ? $(this).attr("id").match(/\d+$/)[0]
+        : "";
+
+      var marketing_expenses =
+        parseFloat($(`#marketing_expenses_${suffix}`).val()) || 0;
+      totel_marketing_expenses += marketing_expenses;
+    });
+    var margin = 0;
+    margin =
+      parseFloat(
+        total_sourcing_deal_sale -
+        total_sourcing_deal_cost -
+        totel_marketing_expenses
+      ) || 0;
+    if (margin < 0) margin = 0;
+    $("#margin").val(margin.toFixed(2));
+    var margin_percent = 0;
+    if (margin > 0) margin_percent = (margin / total_sourcing_deal_sale) * 100;
+    $("#margin_percentage").val(margin_percent);
+  }
+);
+////////////////////get vendor account////////////////
+var related_to = $("#related_to").val();
+var related_to_id = $("#related_to_id1").val();
+if (related_to && related_to_id) {
+  getvendor(related_to, related_to_id);
+}
+///on change related_to_id
+// Create a MutationObserver to detect changes to the input vendor account
+var targetNode = document.getElementById("related_to_id1");
+var observer = new MutationObserver(function (mutationsList) {
+  for (var mutation of mutationsList) {
+    if (mutation.type === "attributes" && mutation.attributeName === "value") {
+      var related_to = $("#related_to").val();
+      var related_to_id = $("#related_to_id1").val();
+      getvendor(related_to, related_to_id);
+
+      console.log("related_to_id1 value changed to:", targetNode.value);
+    }
+  }
+});
+// Configuration for the observer (observe attribute changes)
+var config = { attributes: true };
+observer.observe(targetNode, config);
+
+function getvendor(related_to, related_to_id) {
+  data = {
+    related_to: related_to,
+    related_to_id: related_to_id,
+    _csrf: $("#csrfToken").val(),
+  };
+
+  $.ajax({
+    type: "POST",
+    url: "getvendor",
+    // async:false,
+    data: data,
+    success: function (response) {
+      console.log(response); // Log the entire response to check its structure
+
+      // Check if the data object exists and contains 'first_name'
+      if (response && response.data) {
+        $("#vendor_account_name").val(response.data.vendorname);
+        $("#vendor_account_name1").val(response.data.vendor);
+      } else {
+        console.log("Invalid response format or missing data");
+      }
+    },
+    error: function (data) {
+      // if error occured
+
+      console.log("Error occured.please try again");
+    },
+    dataType: "json",
+  });
+}
+//////////////////end vendor account/////////////////////
+///////////////get base price///////////////////
+function getbaseprice(trid) {
+  productid = $("#productid_" + trid+"1").val();
+  qty_required = $("#quantity_required_" + trid).val();
+
+  if (productid && qty_required) {
+    data = { productid: productid, qty_required: qty_required, _csrf: $("#csrfToken").val() };
+
+    $.ajax({
+      type: "POST",
+      url: "getbaseprice",
+      // async:false,
+      data: data,
+      success: function (response) {
+        console.log(response); // Log the entire response to check its structure
+
+        // Check if the data object exists and contains 'first_name'
+        if (response && response.data) {
+
+          $("#logistics_cost_" + trid).val(response.data.average);
+          var total_logistics_cost = qty_required * response.data.average;
+          $("#total_logistics_cost_" + trid).val(total_logistics_cost.toFixed(2));
+          setTotallogisticcost();
+
+        } else {
+          console.log("Invalid response format or missing data");
+        }
+      },
+      error: function (data) {
+        // if error occured
+
+        alert("Error occured.please try again");
+      },
+      dataType: "json",
+    });
+  }
+}
+function setTotallogisticcost() {
+  var total = 0;
+  $("[class^=total_logistics_cost]").each(function () {
+    var suffix = $(this).attr("id").match(/\d+$/)
+      ? $(this).attr("id").match(/\d+$/)[0]
+      : "";
+    var baseprice = parseFloat($(`#total_logistics_cost_${suffix}`).val()) || 0;
+    total += baseprice;
+    $("#total_logistics_cost").val(total.toFixed(2));
+  });
+
+}
+function setrowTotallogisticcost(suffix) {
+  var qty_required = $("#quantity_required_" + suffix).val() || 0;
+  var logistics_cost = $("#logistics_cost_" + suffix).val() || 0;
+  var total_logistics_cost = qty_required * logistics_cost;
+  $("#total_logistics_cost_" + suffix).val(total_logistics_cost.toFixed(2));
+
+}

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search with Modal</title>
+  <link rel="stylesheet" href="styles.css">
+  <style type="text/css">
+    /* Basic styling for the search box and modal */
+body {
+  font-family: Arial, sans-serif;
+}
+
+.search-container {
+  margin: 20px;
+}
+
+#search-box {
+  padding: 8px;
+  width: 200px;
+}
+
+button {
+  padding: 8px;
+}
+
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+  background-color: #fff;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+  max-width: 500px;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close:hover {
+  color: #000;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+}
+
+tr:hover {
+  background-color: #f1f1f1;
+}
+
+  </style>
+</head>
+<body>
+
+  <!-- Search Box -->
+  <div class="search-container">
+    <input type="text" id="search-box" placeholder="Click to search..." readonly>
+    <button onclick="openModal()">Search</button>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h2>Select a Row</h2>
+      <table id="data-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Position</th>
+            <th>Location</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr onclick="selectRow(this)">
+            <td>John Doe</td>
+            <td>Developer</td>
+            <td>New York</td>
+          </tr>
+          <tr onclick="selectRow(this)">
+            <td>Jane Smith</td>
+            <td>Designer</td>
+            <td>London</td>
+          </tr>
+          <!-- Add more rows as needed -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
+<script type="text/javascript" nonce="<?= Yii::$app->params['cspNonce'] ?>">
+  // Open the modal
+function openModal() {
+  document.getElementById("modal").style.display = "block";
+}
+
+// Close the modal
+function closeModal() {
+  document.getElementById("modal").style.display = "none";
+}
+
+// Select a row and set it to the search box
+function selectRow(row) {
+  const selectedText = row.cells[0].innerText; // Adjust based on what data you want
+  document.getElementById("search-box").value = selectedText;
+  closeModal();
+}
+
+// Close modal if user clicks outside the modal content
+window.onclick = function(event) {
+  const modal = document.getElementById("modal");
+  if (event.target == modal) {
+    closeModal();
+  }
+};
+
+</script>

@@ -1,0 +1,5 @@
+.select2-container .select2-selection--single {
+
+    height: 35px;
+       display: flex;
+    align-items: center;}

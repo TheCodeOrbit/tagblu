@@ -1,0 +1,89 @@
+.tr-hidden{
+  display: none !important;
+}
+.td-cell-link{
+	text-decoration: none !important;
+  color: #000 !important;
+}
+#header-dropdown-portal {
+  position: fixed;      
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.header-dropdown-menu {
+  position: absolute; 
+  pointer-events: auto;
+  background: #fff;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  max-height: 200px;
+  overflow-y: auto;
+  min-width: 150px;
+}
+/* Your wrap-toggle class */
+.cst-cell-wrap {
+  white-space: normal;
+  line-height: 1.8 !important;      
+  word-break: break-word;
+}
+
+/* When AG Grid also adds auto-height + wrap-text, reduce the internal line-height */
+.ag-cell-auto-height.ag-cell-wrap-text.cst-cell-wrap {
+  --reduceLineHeightBy: 8px;
+  line-height: calc(
+    var(--ag-internal-calculated-line-height) - var(--reduceLineHeightBy)
+  );
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+.ellipse-186 {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: url(../images/8122fed4-dd1a-4422-bade-58ec10cdd482.png) no-repeat center;
+    background-size: auto;
+  background-size: auto;
+  background-size: 100% 100%;
+  z-index: 504;
+  border-radius: 50%;
+}
+.div-ellipse {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: url("../images/8122fed4-dd1a-4422-bade-58ec10cdd482.png") no-repeat center;
+    background-size: auto;
+  background-size: 100% 100%;
+  z-index: 18;
+  border-radius: 50%;
+  }
+  .readonly-dd{
+    pointer-events: none;
+    background-color: #e9e9ef;
+  }
+  #signature-pad{
+    border: solid 1px;
+  }
+
+  /* accrodian css 
+  added by ptpatel on date 28-04-25*/
+.accordion-button{
+  padding:0 !important;
+  border:0 !important;
+  background-color: transparent !important;
+}
+.accordion-item{
+  border:0 !important;
+}
+.pad-top{
+  padding-top: 12px;
+}

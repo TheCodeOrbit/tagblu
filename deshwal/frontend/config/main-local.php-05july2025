@@ -1,0 +1,47 @@
+<?php
+
+$config = [
+    'components' => [
+        'request' => [
+            // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
+		'cookieValidationKey' => 'PYyVWX4Yd6HIrkDWdtVai3C2nj3kmmy1',
+		 //added on 23 june 2025
+		'secureHeaders' => ['X-Forwarded-Proto' => 'https'] ,
+		'csrfCookie' => [
+        'httpOnly' => true,
+	'secure' => true,  // ✅ this makes _csrf cookie Secure
+	'sameSite' => 'Lax',
+        // optional: 'domain' => 'stagerp.ditserv.com',
+    ],
+                //end 23 june 2025
+
+	],
+	  //added on 23 june 2025
+         'session' => [
+
+                 'cookieParams' => [
+                        'secure' => true,
+			'httponly' => true,
+			'sameSite' => 'Lax',
+                ],
+        ],
+
+        ////end on 23 june 2025
+
+    ],
+];
+
+if (!YII_ENV_TEST) {
+    // configuration adjustments for 'dev' environment
+    $config['bootstrap'][] = 'debug';
+    $config['modules']['debug'] = [
+        'class' => \yii\debug\Module::class,
+    ];
+
+    $config['bootstrap'][] = 'gii';
+    $config['modules']['gii'] = [
+        'class' => \yii\gii\Module::class,
+    ];
+}
+
+return $config;

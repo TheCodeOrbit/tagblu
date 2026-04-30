@@ -1,0 +1,2 @@
+Login result: true
+AFTER LOGIN hash: $2y$13$/41sq4ufWkElm6gQ28SKneT2JDehcO9IA9tlGP7JcHYcnlyryxxwy

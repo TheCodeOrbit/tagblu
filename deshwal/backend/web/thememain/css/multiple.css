@@ -1,0 +1,186 @@
+	.red {
+		color: #f00;
+	}
+	/*for reference model*/
+	.vendor-input-wrapper {
+	position: relative;
+	display: flex;
+	align-items: center;
+}
+
+.ref-form-control {
+	width: 100%;
+	padding-left: 30px !important; /* Space for the left icon */
+	padding-right: 60px !important; /* Space for the two right icons */
+    /* adding transparent readonly */
+    background: transparent;
+    color: black;
+    pointer-events: none;
+    user-select: none;
+}
+.ref-form-control-multi {
+	width: 100%;
+	padding-left: 30px !important; /* Space for the left icon */
+	padding-right: 60px !important; /* Space for the two right icons */
+    /* adding transparent readonly */
+    background: transparent;
+    color: black;
+    
+}
+
+.icon-left, .icon-right {
+	position: absolute;
+	cursor: pointer;
+}
+
+.icon-left {
+	left: 10px;
+}
+
+.search-icon {
+	right: 10px; /* Position search icon closer to the text */
+}
+/* plus icon is removed from refrence type on date 20-6-25 on client requirement */
+/*.plus-icon {
+	right: 10px; /* Position plus icon at the far right */
+/*}*/
+
+
+
+
+    .table-container {
+        margin-bottom: 20px;
+        overflow-x: auto;
+        overflow-y:auto;
+        height: auto;
+    }
+    #productTable2613 .select2-container {
+        width: 100% !important;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 10px;
+    }
+
+    th,
+    td {
+        padding: 8px 12px;
+        border: 1px solid #ccc;
+        text-align: left;
+        position: relative;
+    }
+
+    th {
+        background-color: #f9f9f9;
+    }
+
+    .add-row-btn {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 8px 16px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .add-row-btn:hover {
+        background-color: #0056b3;
+    }
+
+    .remove-row-btn {
+        background-color: #ff4d4d;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        padding: 4px 8px;
+        display: none;
+    }
+
+    tr:hover .remove-row-btn {
+        display: inline-block;
+    }
+
+
+    .table-container::-webkit-scrollbar {
+        height: 8px;
+        /* Scrollbar height */
+    }
+
+    .table-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        /* Scrollbar track color */
+    }
+
+    .table-container::-webkit-scrollbar-thumb {
+        background-color: #007bff;
+        /* Scrollbar thumb color */
+        border-radius: 4px;
+        /* Rounded corners */
+        border: 1px solid #f1f1f1;
+        /* Optional: border around the thumb */
+    }
+
+    .table-container::-webkit-scrollbar-thumb:hover {
+        background-color: #0056b3;
+        /* Darker color on hover */
+    }
+
+    /* do not remove this class it is used in code of jquery */
+    .productinput{ 
+        /* width: 282px !important; */
+    }
+      /* adde on 21 jan 2025 to resolve select2 dropdown in multiple layout */
+    .wdinput{
+      
+        min-width: 282px !important;
+    }
+
+    .shrinkcols{
+        /* table-layout: fixed; */
+        table-layout: auto;
+    }
+
+     th.col-40 {
+    width: 40px;
+    min-width: 40px;
+    max-width: 40px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    }
+
+     th.col-60 {
+    width: 60px;
+    min-width: 60px;
+    max-width: 60px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    }
+
+
+    th.col-80 {
+    width: 80px;
+    min-width: 80px;
+    max-width: 80px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    }
+
+
+    th.col-100 {
+    width: 100px;
+    min-width: 100px;
+    max-width: 100px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    }

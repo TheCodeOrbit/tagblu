@@ -1,0 +1,203 @@
+<?php
+
+namespace frontend\models;
+use frontend\models\ModtrackerDetail;
+
+use Yii;
+
+/**
+ * This is the model class for table "modtracker_basic".
+ *
+ * @property int $id
+ * @property int|null $crmid
+ * @property string|null $module
+ * @property int|null $whodid
+ * @property string|null $changedon
+ * @property int|null $status
+ */
+class ModtrackerBasic extends \yii\db\ActiveRecord
+{
+    /**
+     * {@inheritdoc}
+     */
+    public static function tableName()
+    {
+        return 'modtracker_basic';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function rules()
+    {
+        return [
+            [['crmid', 'whodid', 'status'], 'integer'],
+            [['changedon'], 'safe'],
+            [['module'], 'string', 'max' => 50],
+        ];
+    }
+     public function getModtrackerDetail()
+    {
+        return $this->hasOne(ModtrackerDetail::className(), ['id' => 'id']);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function attributeLabels()
+    {
+        return [
+            'id' => 'ID',
+            'crmid' => 'Crmid',
+            'module' => 'Module',
+            'whodid' => 'Whodid',
+            'changedon' => 'Changedon',
+            'status' => 'Status',
+        ];
+    }
+    
+    public function auditlog($oldAttributes,$newattributes,$ModuleName,$crmid,$auditstatus,$whodid,$relationmodule='',$relationid=''){
+        // echo $auditstatus;die;
+        if($auditstatus == 0){//insert
+            //insert in modtrackerbasic table
+            // echo "insert into `modtracker_basic` set crmid=$crmid,module='$ModuleName',whodid=$whodid,status=0,changedon='".date("Y-m-d H:i:s")."'";
+            Yii::$app->db->createCommand("insert into `modtracker_basic` set crmid=:crmid,module=:module,whodid=:whodid,status=0,changedon=:changedon")
+            ->bindValue("crmid",$crmid)
+            ->bindValue("module",$ModuleName)
+            ->bindValue("whodid",$whodid)
+            ->bindValue("changedon",date("Y-m-d H:i:s"))
+            ->execute();
+            $lastid = Yii::$app->db->getLastInsertID();
+                foreach ($newattributes as $column => $value) {
+                   if(is_array($value)){
+                    $value = implode(",",$value);// don't know how to deal with multiselect logs
+                   }
+                    # code...
+                    Yii::$app->db->createCommand("insert into `modtracker_detail` set id=:id,fieldname=:fieldname,prevalue=:prevalue,postvalue=:postvalue")
+                        ->bindValue("id",$lastid)
+                        ->bindValue("fieldname",$column)
+                        ->bindValue("prevalue",'')
+                        ->bindValue("postvalue",$value)
+                        ->execute();
+                    
+                }
+        }
+        else if($auditstatus == 3){//added module
+            //insert in modtrackerbasic table
+            // echo "insert into `modtracker_basic` set crmid=$crmid,module=$ModuleName,whodid=$whodid,status=$auditstatus,changedon="+date("Y-m-d H:i:s");die;
+            //get module name
+            $mod = Yii::$app->db->createCommand("select name from tab where tabid = :tabid")->bindValue(":tabid",$ModuleName)->queryOne();
+            $ModuleName = $mod['name'];
+            Yii::$app->db->createCommand("insert into `modtracker_basic` set crmid=:crmid,module=:module,whodid=:whodid,status=$auditstatus,changedon=:changedon")
+            ->bindValue("crmid",$crmid)
+            ->bindValue("module",$ModuleName)
+            ->bindValue("whodid",$whodid)
+            ->bindValue("changedon",date("Y-m-d H:i:s"))
+            ->execute();
+            $id = Yii::$app->db->getLastInsertID();
+
+             Yii::$app->db->createCommand("insert into `modtracker_relations` set id=:id,targetmodule=:targetmodule,targetid=:targetid,changedon=:changedon")
+            ->bindValue("id",$id)
+            ->bindValue("targetmodule",$relationmodule)
+            ->bindValue("targetid",$relationid)
+            ->bindValue("changedon",date("Y-m-d H:i:s"))
+            ->execute();
+          
+        }
+        else  if($auditstatus == 2 || $auditstatus == 1 || $auditstatus == 4 || $auditstatus == 7)
+        {//update
+            if (!$oldAttributes) 
+                {
+                   // die("Record not found!");
+                }
+                // echo "new";
+                // echo $crmid;die;
+
+                //  Compare old and new values
+                $changes = [];
+                foreach ($newattributes as $column => $newValue) {
+                    //echo $column;die;
+                    if($column !="modifiedtime" && $column !="modifiedby" && $column !="creatorid" && 
+                        $column !="createdtime")
+                    {
+                        $oldValue = $oldAttributes[$column] ?? null;
+                        //echo $oldValue." ".$newValue;die; 
+                        if ($oldValue != $newValue) {
+                            $changes[$column] = [
+                                'prevalue' => $oldValue,
+                                'postvalue' => $newValue
+                            ];
+                        }
+                    }
+                }
+                // print_r($changes);die;
+                    //Log changes
+                if (!empty($changes)) {
+                     $transaction = Yii::$app->db->beginTransaction();
+
+                    try {
+                        //insert in modtrackerbasic table
+                            Yii::$app->db->createCommand("insert into `modtracker_basic` set crmid=:crmid,module=:module,whodid=:whodid,status=:status,changedon=:changedon")
+                            ->bindValue("crmid",$crmid)
+                            ->bindValue("status",$auditstatus)
+                            ->bindValue("module",$ModuleName)
+                            ->bindValue("whodid",$whodid)
+                            ->bindValue("changedon",date("Y-m-d H:i:s"))
+                            ->execute();
+
+                            $lastid = Yii::$app->db->getLastInsertID();
+
+                            foreach ($changes as $column => $values) {
+                      
+                                Yii::$app->db->createCommand("insert into `modtracker_detail` set id=:id,fieldname=:fieldname,prevalue=:prevalue,postvalue=:postvalue")
+                                        ->bindValue("id",$lastid)
+                                        ->bindValue("fieldname",$column)
+                                        ->bindValue("prevalue", $values['prevalue'])
+                                        ->bindValue("postvalue",$values['postvalue'])
+                                        ->execute();
+                            }
+                            $transaction->commit();
+                        }
+                        catch (\Exception $e) {
+                            $transaction->rollBack();
+                            echo 'An error occurred: ' . $e->getMessage();die;
+               
+                        }
+
+                //echo "Changes logged successfully.";
+                }
+          
+               
+        }
+
+        // centralized place to track change of ownerid to manage listview for intermediate users
+        $owner_trakcer_enabled = true;
+        $old_ownerid = null;
+        $new_ownerid = null;
+        $record_creatorid = null;
+        if($auditstatus == 0) $owner_trakcer_enabled = false;
+        if(!empty($oldAttributes)){
+            $old_ownerid = $oldAttributes["ownerid"] ?? null;
+            $record_creatorid = $oldAttributes["creatorid"] ?? null;
+        }
+        if(!empty($newattributes)){
+            if(!empty($newattributes["ownerid"])){
+                $new_ownerid = $newattributes["ownerid"];
+            }
+        }
+        if($old_ownerid == $new_ownerid) $owner_trakcer_enabled = false;
+        if($record_creatorid == $new_ownerid) $owner_trakcer_enabled = false;
+        if(!empty($newattributes) && $owner_trakcer_enabled){
+            if(!empty($newattributes["ownerid"])){
+                Yii::$app->db->createCommand("INSERT INTO owner_tracker(module,module_reference_id,ownerid,created_on,created_by,deleted) VALUES(:module,:module_reference_id,:ownerid,:created_on,:created_by,:deleted)")
+                    ->bindValue("module_reference_id",$crmid)
+                    ->bindValue("ownerid",$newattributes["ownerid"])
+                    ->bindValue("module",$ModuleName)
+                    ->bindValue("created_by",$whodid)
+                    ->bindValue("created_on",date("Y-m-d H:i:s"))
+                    ->bindValue("deleted",0)
+                    ->execute();
+            }
+        }
+    }
+}

@@ -1,0 +1,176 @@
+<?php
+
+namespace backend\modules\productdetail\controllers;
+
+use app\models\Products;
+use app\models\VendorLocations;
+use common\controllers\ModuleController;
+use Yii;
+use yii\web\Response;
+/**
+ * Default controller for the `leads` module
+ */
+// class DefaultController extends Controller
+class DefaultController extends ModuleController
+{
+    public $layout='multiple';
+    public $ModuleName='productdetail';
+    public $FieldId='product_costing_id';
+    public $TableName='product_costing';
+    public $TabLabel='Product Detail';
+    public $ChildTableName='product_costing_detail';
+    public $ChildFieldId='product_costing_detail_id';
+
+   
+    public $TabId='31';
+    /**
+     * Renders the index view for the module
+     * @return string
+     */
+//  public function beforeAction($action)
+// {
+//     $this->layout = '@app/views/layouts/main';  // Set the main layout before each action
+//     return parent::beforeAction($action);
+// }
+
+    public function actionExample()
+    {
+        return $this->render('index');
+    }
+
+
+    public function actionGetproductinfo()
+    {   
+        $data = $_POST;
+        $productid = Yii::$app->request->post('productid');
+        $connection = Yii::$app->db;
+        // echo "
+        //                 SELECT product_category_value as category,sub_catagory_value as subcategory,uom_value FROM `products` 
+        //                 join product_category on product_category.product_category_id = products.category
+        //                 join prod_sub_catagory on prod_sub_catagory.sub_catagory_id = products.subcategory
+        //                 join prod_uom on prod_uom.uom_id = products.uom
+        //                   WHERE products_id = 36
+        //             ";die;
+
+        $command = $connection->createCommand("
+                        SELECT prod_model_value as model,prod_make_value as make,hsn_code ,cost_price,prod_category_value as category,sub_catagory_value as subcategory,uom_value FROM `products` 
+                        left join prod_category on prod_category.prod_category_id = products.category
+                        left join prod_sub_catagory on prod_sub_catagory.sub_catagory_id = products.subcategory
+                        left join prod_make on prod_make.prod_make_id = products.make
+                        left join prod_model on prod_model.prod_model_id  = products.model
+                        left join prod_uom on prod_uom.uom_id = products.uom
+                          WHERE products_id = :products_id
+                    ")->bindValue(":products_id", $productid);
+        $columns = $command->queryOne();
+        if (!empty($columns)) {
+              return $this->asJson([
+                    'status' => 'success',
+                    'data' => $columns,
+                ]);
+        } else {
+            return $this->asJson([
+                'status' => 'error',
+                'message' => 'No Product info found.',
+                'data'=>''
+            ]);
+        }
+    }
+    public function actionGetvendor()
+    {   
+        $data = $_POST;
+        $related_to = Yii::$app->request->post('related_to');
+        $related_to_id = Yii::$app->request->post('related_to_id');
+        $connection = Yii::$app->db;
+        if($related_to == 8)
+        {
+            //fetch from opportunity
+            $sql = "select vendor_account_name as vendor,acc_name as vendorname from opportunity join vendor_account on getvendor.vendoraccid = opportunity.vendor_account_name  where opportunity_id=:related_to_id";
+        }
+        else if($related_to == 51)
+        {
+            //fetch from sourcingdeal
+            $sql = "select vendor_account_name as vendor,acc_name as vendorname from sourcingdeal join vendor_account on vendor_account.vendoraccid = sourcingdeal.vendor_account_name  where sourcingdeal_id=:related_to_id";
+        }
+
+        $command = $connection->createCommand($sql)->bindValue(":related_to_id", $related_to_id);
+        $columns = $command->queryOne();
+        if (!empty($columns)) {
+              return $this->asJson([
+                    'status' => 'success',
+                    'data' => $columns,
+                ]);
+        } else {
+            return $this->asJson([
+                'status' => 'error',
+                'message' => 'No Product info found.',
+                'data'=>''
+            ]);
+        }
+    }
+
+
+    public function actionGetlocationstates()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $billLocation = Yii::$app->request->post('billLocation');
+        $shipLocation = Yii::$app->request->post('shipLocation');
+        $product_id = Yii::$app->request->post('product_id');
+
+        if (!$billLocation || !$shipLocation) {
+            return ['success' => false, 'message' => 'Invalid Location selection'];
+        }
+
+        $billState = VendorLocations::find()->select('state')->where(['vendorloc_id' => $billLocation])->scalar();
+        $shipState = VendorLocations::find()->select('state')->where(['vendorloc_id' => $shipLocation])->scalar();
+
+        $product = Products::find()
+            ->select(['gst_percentage'])
+            ->where(['products_id' => $product_id])
+            ->asArray()
+            ->one();
+
+        if ($billState && $shipState) {
+            return [
+                'success' => true,
+                'billState' => $billState,
+                'shipState' => $shipState,
+                'gst_percentage' => $product['gst_percentage'],
+            ];
+        } else {
+            return ['success' => false, 'message' => 'Location not found'];
+        }
+    }
+
+    public function actionGetbaseprice()
+    {
+        $data = $_POST;
+        $productid = Yii::$app->request->post('productid');
+        $quantity_required = Yii::$app->request->post('qty_required');
+        $connection = Yii::$app->db;
+
+
+        $command = $connection->createCommand("
+                        SELECT average from pickup_calculator
+                          WHERE (:quantity_required between from_range and base) and productid = (select subcategory from products where products_id=:products_id)")
+                        ->bindValue(":products_id", $productid)
+                        ->bindValue(":quantity_required", $quantity_required);
+        $columns = $command->queryOne();
+        if (!empty($columns)) {
+            $average = trim($columns['average']);
+           
+          
+            
+                
+            return $this->asJson([
+                'status' => 'success',
+                'data' => $columns,
+            ]);
+        } else {
+            return $this->asJson([
+                'status' => 'error',
+                'message' => 'No Product info found.',
+                'data' => ''
+            ]);
+        }
+    }
+}

@@ -1,0 +1,50 @@
+Options +FollowSymlinks
+#Options FollowSymLinks MultiViews
+RewriteEngine On
+
+# Redirect to /admin/ relative to the web root
+#uncomment to redirect to admin
+# RewriteRule ^$ /deshwal/admin/ [L,R=301]
+
+
+# deal with admin first
+RewriteCond %{REQUEST_URI} ^/deshwal/(admin)
+RewriteRule ^admin/assets/(.*)$ backend/web/assets/$1 [L]
+RewriteRule ^admin/css/(.*)$ backend/web/css/$1 [L]
+RewriteRule ^admin/js/(.*)$ backend/web/js/$1 [L]
+
+RewriteRule ^admin/theme/(.*)$ backend/web/theme/$1 [L]
+RewriteRule ^admin/thememain/(.*)$ backend/web/thememain/$1 [L]
+RewriteRule ^admin/images/(.*)$ backend/web/images/$1 [L]
+
+
+
+RewriteCond %{REQUEST_URI} !^/deshwal/backend/web/(assets|js|css|theme|thememain|images)/
+RewriteCond %{REQUEST_URI} ^/deshwal/(admin)
+RewriteRule ^.*$ backend/web/index.php [L]
+
+
+
+# Apply rule for other /deshwal/ URLs
+RewriteCond %{REQUEST_URI} ^/deshwal/ [NC]
+RewriteRule ^deshwal/(.*)$ frontend/web/$1 [L]
+
+# Exclude /deshwal/api from rewrite
+RewriteCond %{REQUEST_URI} ^/deshwal/api [NC]
+RewriteRule .* - [L]
+
+#frontend
+RewriteCond %{REQUEST_URI} ^/deshwal/(assets|css|theme|js)
+RewriteRule ^assets/(.*)$ frontend/web/assets/$1 [L]
+RewriteRule ^css/(.*)$ frontend/web/css/$1 [L]
+RewriteRule ^js/(.*)$ frontend/web/js/$1 [L]
+RewriteRule ^images/(.*)$ frontend/web/images/$1 [L]
+RewriteRule ^theme/(.*)$ frontend/web/theme/$1 [L]
+
+
+RewriteCond %{REQUEST_URI} !^/deshwal/(frontend|backend)/web/(assets|js|css|theme|thememain|images|js|deshwalimage)/
+RewriteCond %{REQUEST_URI} !index.php
+RewriteCond %{REQUEST_FILENAME} !-f [OR]
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^.*$ frontend/web/index.php
+

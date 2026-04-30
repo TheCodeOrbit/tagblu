@@ -1,0 +1,185 @@
+/* primary button */
+.btn-primary,
+.btn-export,
+#importButton,
+#improveimportButton,
+.btn-sm,
+.btn.btn-primary,
+.btn-outline-primary,
+/* .btn.btn-secondary  */
+.stage.completed-stage a,
+#popup-bulk-upload-btn,
+.add-btn,
+.edit-parenttab-btn,
+.fields-btn,
+.edit-field-btn,
+.save-btn,
+.detail-view-btn-gen,
+.btn-success,
+.select-btn
+{
+    background-color: var(--color-primary) !important;
+    border-color: var(--color-primary) !important;
+    color: #fff !important;
+}
+
+.stage.completed-stage a::after{
+    border-left-color:var(--color-primary) !important;
+}
+#importButton
+,#improveimportButton,
+#bulk-upload-btn-so{
+    background: none !important;
+    border: 1px solid var(--color-primary) !important;
+    color: var(--color-primary) !important;
+}
+.fa-solid{
+    color: var(--color-primary) !important;
+}
+input[type="checkbox"]{
+    accent-color: var(--color-primary) !important;
+}
+
+
+.bg-primary { background-color: var(--color-primary) !important; }
+
+/* .btn:hover{
+    color:#fff !important;
+} */
+.mod-close:hover{
+    color: #5c9cff !important;
+}
+
+.panel,
+.box,
+.pagination-button{
+    background-color: var(--color-primary);
+    color: white;
+}
+.icons-coll {
+    color: var(--color-primary) !important;  /* green, blue, etc */
+    display: inline-flex;
+    align-items: center;
+}
+
+.icons-coll svg path[fill="#8DBAFF"],
+.icons-coll svg path[fill="#8dbaff"] {
+    fill: var(--color-primary) !important;
+}
+
+.icons-coll svg rect[fill="white"],
+.icons-coll svg path[fill="white"] {
+    fill: white !important;
+}
+
+/* Wrapper: define theme color */
+.icons-col-fill {
+    color: var(--color-primary);  /* same primary you already use */
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Make strokes follow that color */
+.icons-col-fill-search svg path {
+    stroke: var(--color-primary) !important;
+    /* optional: if there is any fill you also want themed */
+    /* fill: var(--color-primary) !important; */
+}
+
+.icons-col-fill-search svg path[fill="#5C9CFF"]{
+    fill: var(--color-primary) !important;
+}
+
+
+/* NOTIFY */
+
+.icons-col-fill-nofity {
+    color: var(--color-primary);       
+    display: inline-flex;
+    align-items: center;
+}
+
+.icons-col-fill-nofity svg path[fill="#5C9CFF"],
+.icons-col-fill-nofity svg path[fill="#5c9cff"] {
+    fill: var(--color-primary) !important;
+}
+
+.icons-col-fill-nofity svg rect[fill="white"],
+.icons-col-fill-nofity svg rect[fill="#ffffff"],
+.icons-col-fill-nofity svg path[fill="white"],
+.icons-col-fill-nofity svg path[fill="#ffffff"] {
+    fill: white !important;
+}
+
+
+
+.icons-coll#refresh-icon svg path[stroke="#5C9CFF"],
+.icons-coll#refresh-icon svg path[stroke="#5c9cff"] {
+    stroke: var(--color-primary) !important;
+}
+
+/* Keep the outer rect stroke as-is */
+.icons-coll#refresh-icon svg rect {
+    stroke: var(--color-primary); /* or any fixed color you want */
+}
+
+/* Filter selector icon: theme its fill */
+.icons-coll.filter-selector-btn svg path[fill="#5C9CFF"],
+.icons-coll.filter-selector-btn svg path[fill="#5c9cff"] {
+    fill: var(--color-primary) !important;
+}
+
+/* Column selector icon: theme its fill */
+.icons-coll.col-selector-btn svg path[fill="#5C9CFF"],
+.icons-coll.col-selector-btn svg path[fill="#5c9cff"] {
+    fill: var(--color-primary) !important;
+}
+
+
+
+
+.icons-coll svg path[stroke="#5C9CFF"],
+.icons-coll svg path[stroke="#5c9cff"] {
+    stroke: var(--color-primary) !important;
+}
+
+.icons-coll svg path[fill="#5C9CFF"],
+.icons-coll svg path[fill="#5c9cff"],
+.icons-coll svg path[fill="#8DBAFF"],
+.icons-coll svg path[fill="#8dbaff"] {
+    fill: var(--color-primary) !important;
+}
+
+.icons-coll.vector-67 svg path {
+  stroke: var(--color-primary) !important;
+}
+
+.icons-coll svg path[stroke="#64626A"],
+.icons-coll svg path[stroke="#64626A"] {
+  stroke: var(--color-primary) !important;
+}
+.btn:hover,
+.btn-primary:hover,
+.btn-export:hover,
+.btn-success:hover,
+.btn-outline-primary:hover,
+.add-btn:hover,
+.edit-parenttab-btn:hover,
+.fields-btn:hover,
+.edit-field-btn:hover,
+.save-btn:hover,
+.detail-view-btn-gen:hover,
+.btn-sm:hover,
+.pagination-button:hover
+.select-btn:hover {
+    color: #fff !important;
+}
+
+.btn.btn-secondary,
+.btn.btn-secondary:hover,
+.btn.btn-secondary:focus,
+.btn.btn-secondary:active {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    color: #fff !important;
+}

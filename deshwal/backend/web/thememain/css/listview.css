@@ -1,0 +1,1020 @@
+
+
+
+/* for notes editor */
+#editor-container {
+  height: 200px;
+  margin-bottom: 20px;
+  /* border: 1px solid #ccc; */
+  /* padding: 10px; */
+
+  margin-top: -10px;
+}
+.mention-list {
+  display: none;
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ccc;
+  max-height: 150px;
+  overflow-y: auto;
+  z-index: 1000;
+  width: 150px;
+  border-radius: 5px;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+  margin-top: 84px;
+}
+.mention-item {
+  padding: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.mention-item:hover {
+  background-color: #f0f0f0;
+}
+.mention {
+  color: blue;
+  /* font-weight: bold; */
+}
+/* end notes editor */
+/* ============================
+   Modern AG Grid Data Table
+   ============================ */
+#myGrid {
+  font-family: "Poppins", Helvetica;
+  height: 64vh;
+  width: 100%;
+  overflow: auto;
+  border-radius: 10px;
+}
+
+/* added on 10 jan 2025 */
+.more-content {
+  display: none;
+}
+.less-content {
+  display: block;
+}
+
+.dd-menu {
+  display: none;
+  position: fixed;
+  /* Fixed position so it renders outside table boundaries */
+  background: white;
+  border: 1px solid #ccc;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 10000;
+  /* High z-index to ensure visibility */
+  min-width: 120px;
+  white-space: nowrap;
+}
+
+
+.ag-theme-alpine .ag-cell {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  color: #374151;
+  border-right: none !important;
+}
+
+.ag-theme-alpine .ag-cell.ag-cell-wrap {
+  display: block;
+  padding: 5px;
+  box-sizing: border-box;
+  height: auto !important;
+}
+
+/* Default clipping for all cells */
+.ag-cell {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Wrapping class */
+.ag-theme-alpine .cst-cell-wrap {
+  white-space: normal !important;
+  overflow-wrap: break-word !important;
+  word-wrap: break-word !important;
+  word-break: break-word !important;
+}
+
+/* Modern header */
+.ag-theme-alpine .ag-header {
+  background-color: #f9fafb !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  font-weight: 500;
+  font-size: 13px;
+  color: #9ca3af;
+  min-height: 44px !important;
+}
+
+.ag-theme-alpine .ag-header-cell {
+  border-right: none !important;
+  padding-left: 16px;
+}
+
+.ag-theme-alpine .ag-header-cell-label {
+  color: #374151;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: -0.01em;
+  font-size: 13.5px;
+}
+
+/* Badge Transition */
+.status-badge {
+  transition: all 0.2s ease;
+}
+
+/* Row styling */
+.ag-theme-alpine .ag-row {
+  border-bottom: 1px solid #f0f1f3 !important;
+  border-top: none !important;
+  transition: background-color 0.12s ease;
+}
+
+.ag-theme-alpine .ag-row:hover {
+  background-color: #f8fafc !important;
+}
+
+.ag-theme-alpine .ag-row-even {
+  background-color: #ffffff;
+}
+
+.ag-theme-alpine .ag-row-odd {
+  background-color: #ffffff;
+}
+
+/* Selected row */
+.ag-theme-alpine .ag-row-selected {
+  background-color: #f0f7ff !important;
+  border-color: #e0edff !important;
+}
+
+/* Checkbox styling */
+.ag-theme-alpine .ag-checkbox-input-wrapper {
+  border-radius: 4px;
+}
+
+.ag-theme-alpine .ag-checkbox-input-wrapper input {
+  border-radius: 4px;
+}
+
+/* Remove outer grid borders for cleaner look */
+.ag-theme-alpine .ag-root-wrapper {
+  border: none !important;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.ag-theme-alpine .ag-body-viewport {
+  border: none !important;
+}
+
+/* Cell padding */
+.ag-theme-alpine .ag-cell {
+  padding-left: 16px !important;
+}
+
+/* Row Action Button styling */
+.row-action-btn {
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  font-size: 20px;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  padding-bottom: 8px; /* Offset for vertical ellipsis */
+}
+
+.row-action-btn:hover {
+  background-color: #f1f5f9;
+  color: #374151;
+}
+
+/* Row Action Dropdown styling */
+.row-action-dropdown {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 10px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  min-width: 140px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+}
+
+.row-action-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #374151;
+  cursor: pointer;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.row-action-item:hover {
+  background-color: rgba(244, 244, 250, 0.9);
+  color: #111827;
+}
+
+.row-action-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  transition: color 0.2s;
+}
+
+.row-action-item:hover .row-action-icon {
+  color: #111827;
+}
+
+/* Status Badges (Premium Refinement) */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  background-color: transparent !important;
+}
+
+.badge-icon {
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.status-badge.success {
+  background-color: transparent;
+  color: #059669;
+}
+
+.status-badge.warning {
+  background-color: transparent;
+  color: #d97706;
+}
+
+.status-badge.danger {
+  background-color: transparent;
+  color: #dc2626;
+}
+
+.status-badge.info {
+  background-color: transparent;
+  color: #0284c7;
+}
+
+.status-badge.secondary {
+  background-color: transparent;
+  color: #52525b;
+}
+
+
+/* Customize the ag-Grid pagination bar */
+
+.ag-paging-panel {
+  display: flex;
+  font-size: 14px;
+}
+
+.ag-paging-panel .ag-paging-button {
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  padding: 5px 10px;
+  cursor: pointer;
+  margin: 0 2px;
+  color: #007bff;
+}
+
+.ag-paging-panel .ag-paging-button:hover {
+  background-color: #f0f0f0;
+}
+
+.ag-paging-panel .ag-paging-number {
+  border: 1px solid #007bff;
+  color: #007bff;
+  padding: 5px 10px;
+  margin: 0 2px;
+  cursor: pointer;
+}
+
+.ag-paging-panel .ag-paging-number.ag-pagination-active {
+  background-color: #007bff;
+  color: white;
+}
+
+
+.custom-pagination {
+  display: flex;
+  gap: 2px;
+  /*commented by deepika*/
+  /*gap: 8px;*/
+  /*margin-top: 10px;*/
+}
+
+.page-button {
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  background-color: #f9f9f9;
+}
+
+.page-button.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+
+.modal {
+  position: fixed;
+  top: 13px;
+  left: 0px;
+  z-index: 1055;
+  display: none;
+  width: 100%;
+  height: 131%;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  outline: 0;
+}
+
+.col-md-3:not(.fm) {
+  border: 1px solid #e9e9ef;
+}
+.pophead{
+ background-color: var(--color-primary) !important;
+  padding: 7px;
+  color: #fff;
+}
+.form-row {
+  display: flex;
+  gap: 18px;
+  padding: 8px 8px;
+  padding-left: 4px;
+  padding-right: 45px;
+}
+
+.modal-content {
+  height: auto;
+  max-height: 550px;
+  position: relative;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  /* width: 100%; */
+  /* width: 1100px; */
+  /* right:140px; */
+  pointer-events: auto;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #f6f6f6;
+  border-radius: .25rem;
+  outline: 0;
+}
+
+/* added on 10 jan 2025 */
+#updateModel{
+  
+  width: 100% !important;
+  /* width: 1100px; */
+  top:140px;
+ 
+}
+
+.dropdown-menu-clip {
+  display: none;
+  position: fixed;
+  /* Fixed position so it renders outside table boundaries */
+  background: white;
+  border: 1px solid #ccc;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 10000;
+  /* High z-index to ensure visibility */
+  min-width: 120px;
+  white-space: nowrap;
+}
+
+
+.show-required {
+
+  display: flex;
+  align-items: center;
+  justify-content: end;
+}
+
+.toggle-container {
+  display: flex;
+  right: 90px;
+  align-items: center;
+  /* font-family: Arial, sans-serif; */
+  color: #555;
+  font-size: 16px;
+  position: absolute;
+}
+
+.toggle-switch {
+  position: relative;
+  width: 40px;
+  height: 20px;
+  margin-right: 10px;
+  background-color: #e0e0e0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.toggle-switch::before {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  top: 1px;
+  left: 1px;
+  background-color: #fff;
+  border-radius: 50%;
+  transition: transform 0.3s;
+}
+
+.toggle-switch.active {
+  background-color: #007bff;
+}
+
+.toggle-switch.active::before {
+  transform: translateX(20px);
+}
+
+.title-tab {
+  /*width: 759px;*/
+  height: 40px;
+  background: #d9d9d9;
+  margin: 10px 0px 7px 0px;
+}
+
+.modal-body {
+  overflow-y: auto;
+}
+
+/* .left {
+    overflow-y: auto;
+  }
+
+  .right {
+    overflow-y: auto;
+  } */
+
+.col-md-8 {
+  width: 75%;
+}
+
+.title-info {
+  padding: 12px;
+}
+
+/*  .required-field {
+  display: none;
+}*/
+.not-required-field {
+  display: block;
+}
+
+/* Targeting the modal container */
+#columnSelectorModel {
+
+  padding-left: 0;
+  margin: 117px auto;
+  width: 100%;
+  /*max-height: 85vh;*/
+  height: auto
+}
+
+/* Modal dialog */
+#columnSelectorModel .modal-dialog {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Modal content styling */
+#columnSelectorModel .modal-content {
+  width: 100%;
+  max-height: 100%;
+  /* Ensures modal content respects the height */
+  display: flex;
+  flex-direction: column;
+  /* Make it column layout */
+}
+
+/* Modal body to enable scroll */
+#columnSelectorModel .modal-body {
+  max-height: calc(50vh - 100px);
+  overflow-y: auto;
+  /* Add vertical scroll */
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+/* Modal footer styling to keep it at the bottom */
+#columnSelectorModel .modal-footer {
+  position: sticky;
+  bottom: 0;
+  background-color: #fff;
+  /* Ensure background visibility */
+  padding: 10px;
+}
+
+
+/* filterByNameModel the modal container */
+#filterByNameModel {
+
+  padding-left: 0;
+  margin: 117px auto;
+  width: 100%;
+  /*max-height: 85vh;*/
+  height: auto;
+
+}
+
+/* Modal dialog */
+#filterByNameModel .modal-dialog {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Modal content styling */
+#filterByNameModel .modal-content {
+  width: 100%;
+  max-height: 100%;
+  /* Ensures modal content respects the height */
+  display: flex;
+  flex-direction: column;
+  /* Make it column layout */
+}
+
+/* Modal body to enable scroll */
+#filterByNameModel .modal-body {
+  max-height: calc(50vh - 100px);
+  overflow-y: auto;
+  /* Add vertical scroll */
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+/* Modal footer styling to keep it at the bottom */
+#filterByNameModel .modal-footer {
+  position: sticky;
+  bottom: 0;
+  background-color: #fff;
+  /* Ensure background visibility */
+  padding: 10px;
+}
+
+.filed-div {
+  background-color: #f8f8f8E2;
+  padding: 12px;
+  border: 1px solid white;
+  cursor: pointer;
+}
+
+/* Optional: Adjust spacing between the dropdown and input */
+.filter-box .form-select {
+  margin-bottom: 5px;
+  /* Space between dropdown and input */
+}
+
+.filterfieldlabel {
+  float: left;
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.filtertrashbox {
+  float: right;
+  cursor: pointer;
+  margin-right: 5px;
+}
+
+.custom-header .sort-arrow .arrow {
+  font-weight: normal;
+  color: gray;
+  cursor: pointer;
+  /*margin-left: -7px;*/
+  margin-left: -4px;
+}
+
+.custom-header .sort-arrow .arrow.active {
+  font-weight: bold;
+  color: black;
+  /* Adjust color as needed */
+}
+
+.sort-arrow {
+  display: inline-flex;
+  /* Use flexbox to align elements side by side */
+  align-items: center;
+  /* Center-align vertically */
+  gap: 0px;
+  /* Space between the arrows */
+}
+
+.dropdown-up,
+.dropdown-down {
+  width: 12px;
+  /* Adjust width */
+  height: 9px;
+  /* Adjust height */
+  display: inline-block;
+  /* Inline-block to stay in line */
+  background-size: cover;
+  /* Ensure full size of background */
+}
+
+.dropdown-up {
+  background: url('../images/mingcute_arrow-up-line.png') no-repeat center;
+  background-size: contain;
+}
+
+.dropdown-down {
+  background: url('../images/mingcute_arrow-down-line.png') no-repeat center;
+  background-size: contain;
+
+}
+
+/*for star image*/
+.div-vector-37 {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: url("/deshwal/admin/thememain/images/594e51cd-403e-445a-941c-6792783d17b5.png") no-repeat center;
+  background-size: auto;
+  background-size: 100% 100%;
+  z-index: 22;
+}
+
+.div-group-36 {
+  position: relative;
+  width: 21.619px;
+  height: 12.971px;
+  margin: 2.157px 0 0 7.189px;
+  z-index: 21;
+}
+
+/* ============================
+   Modern Pagination (Reference Match)
+   ============================ */
+.pagination-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 0;
+  padding: 14px 24px;
+  justify-content: flex-end;
+  border-top: 1px solid rgba(0, 0, 0, 0.03);
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-radius: 0 0 12px 12px;
+}
+
+.selection-info {
+  font-size: 13.5px;
+  color: #9ca3af;
+  font-weight: 400;
+  margin-right: auto;
+}
+
+.pagination-info {
+  font-size: 13.5px;
+  color: #9ca3af;
+  font-weight: 400;
+  font-style: italic;
+  display: none; /* Hide legacy info if using custom selection info */
+}
+
+/* Dropdown styling */
+.results-per-page {
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.page-size-dropdown {
+  padding: 6px 12px;
+  font-size: 13px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #374151;
+  outline: none;
+  cursor: pointer;
+  appearance: auto;
+}
+
+.page-size-dropdown:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+/* Previous / Next buttons (shadcn style) */
+.pagination-btn {
+  background-color: #ffffff;
+  color: #18181b;
+  border: 1px solid #e4e4e7;
+  padding: 8px 16px;
+  font-size: 13px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  line-height: 1;
+}
+
+.pagination-btn:hover {
+  background-color: #f4f4f5;
+  border-color: #d4d4d8;
+}
+
+/* Page number buttons */
+.pagination-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+.pagination-buttons button {
+  background-color: transparent;
+  color: #71717a;
+  border: 1px solid transparent;
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pagination-buttons button:hover {
+  background-color: #f4f4f5;
+  color: #18181b;
+}
+
+.pagination-buttons button.active {
+  background-color: #18181b;
+  color: #ffffff;
+  font-weight: 600;
+  border-color: #18181b;
+}
+
+
+
+
+
+/* kanban style */
+
+.board-column-1 {
+  background-color: #d9d9d9;
+  width: 300px;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: 460px;
+  overflow: scroll;
+}
+
+.board-column h3 {
+
+  padding: 15px 0px;
+  border-radius: 8px;
+  color: white;
+  text-align: center;
+  font-size: 16px;
+}
+
+.card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
+  position: relative;
+}
+
+.card h4 {
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.card p {
+  margin-bottom: 5px;
+  color: #555;
+  font-size: 14px;
+}
+
+.dropdown-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #f1f1f1;
+  border: none;
+  border-radius: 4px;
+  padding: 5px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.card-options {
+  position: absolute;
+  top: 40px;
+  right: 10px;
+  background-color: #fff;
+  border-radius: 4px;
+  padding: 5px;
+  font-size: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  display: none;
+  z-index: 10;
+}
+
+.card-options div {
+  padding: 5px;
+  cursor: pointer;
+}
+
+.card-options div:hover {
+  background-color: #eee;
+}
+
+.bg-card {
+  background-image: url("/deshwal/admin/thememain/images/bg-card.png");
+  background-position: center;
+  margin-left: -7px;
+  background-size: cover;
+  width: 320px;
+}
+
+.main-board-1 {
+  padding: 20px;
+  display: flex;
+  overflow: scroll;
+  align-items: flex-start;
+  gap: 20px;
+  width: 100%;
+}
+/* added on 22 jan 2025 for pipeline stages */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+.btn-pipeline {
+    display: flex;
+    list-style: none;
+    overflow: hidden;
+    padding: 0;
+    /* min-width: 1500px; */
+     min-width: 1800px; /*added on date 23-07-25*/
+    /* -webkit-fill-available; */
+    border-radius: 1.3333rem;
+}
+
+.stage {
+    flex-grow: 1;
+    flex-basis: 100%;
+    min-width: 0;
+    position: relative;
+    line-height: 2.5; /*added on date 23-07-2025*/
+}
+
+.stage a {
+    height: 2.5rem;
+    font-size: 0.64rem;
+    color: #000;
+    text-decoration: none;
+    padding: 0.5333rem 0.6rem 0.5333rem 1.6667rem;
+    background-color: #e0e4f8;
+    position: relative;
+    display: block;
+    text-align: center;
+    /* line-height: 2; */
+    cursor: pointer;
+}
+
+.stage a:hover {
+    color: #000;
+}
+
+.stage a::after,
+.stage a::before {
+    content: " ";
+    display: block;
+    width: 0;
+    height: 0;
+    border-top: 1.3333rem solid transparent;
+    border-bottom: 1.3333rem solid transparent;
+    border-left: 1.3333rem solid;
+    position: absolute;
+    top: 50%;
+    margin-top: -1.3333rem;
+    left: 100%;
+    z-index: 2;
+}
+
+.stage a::after {
+    border-left-color: #e0e4f8;
+}
+
+.stage a::before {
+    border-left-color: #fff;
+    margin-left: 0.0666rem;
+    z-index: 1;
+}
+
+.stage:last-child a::after {
+    display: none;
+}
+
+.stage.completed-stage a {
+    background-color: #28a645;
+    color: #fff;
+}
+
+.stage.completed-stage a::after {
+    border-left-color: #28a645;
+}
+
+.stage.completed-stage a::before {
+    border-left-color: #fff;
+}
+
+.stage.in-progress-stage a {
+    background-color: #0176ff;
+    color: #fff;
+}
+
+.stage.in-progress-stage a::after {
+    border-left-color: #0176ff;
+}
+
+.stage.in-progress-stage a::before {
+    border-left-color: #fff;
+}
+
+.stage.pend a {
+    background-color: #ffc107;
+    color: #fff;
+}
+
+.stage.pend a::after {
+    border-left-color: #ffc107;
+}
+
+.stage.pend a::before {
+    border-left-color: #fff;
+}
+
+/* Highlight clicked stage */
+.clicked-stage a {
+    background-color: #0176ff !important;
+    color: #fff !important;
+}
+
+/* Highlight arrows on clicked stage */
+.clicked-stage a::after {
+    border-left-color: #0176ff !important;
+}
+
+.clicked-stage a::before {
+    border-left-color: #fff !important;
+}
+.pipeline-function-1{    display: flex
+;
+align-items: center;
+height: 100vh;
+}
+/* end pipeline stages */

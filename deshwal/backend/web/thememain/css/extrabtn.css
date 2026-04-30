@@ -1,0 +1,32 @@
+
+    /* Add custom CSS styles */
+.custom-form {
+    /* Make the form layout more compact or aligned to your design */
+    max-width: 400px; /* Limit the width of the form */
+    margin: 0 auto;   /* Center the form horizontally */
+    padding: 20px;    /* Add some padding */
+    background-color: #f9f9f9;  /* Custom background color */
+    border-radius: 8px;  /* Rounded corners for the form */
+}
+
+/* Customize the hidden input (this is optional, since it's hidden) */
+.hidden-input {
+    display: none;  /* Ensure the hidden input is completely hidden */
+}
+
+/* Style for the submit button */
+.custom-btn {
+    background-color: #007bff; /* Use your primary color */
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* On hover, change button color */
+.custom-btn:hover {
+    background-color: #0056b3;
+}
+

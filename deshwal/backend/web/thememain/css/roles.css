@@ -1,0 +1,125 @@
+   .d-flex {
+      display: flex !important;
+   }
+
+   .header-image {
+      position: absolute;
+      left: -9999px;
+   }
+
+   .list-view-add-btn {
+      width: 2rem;
+      height: 2rem;
+   }
+
+   .gap-3rem {
+      gap: 1rem;
+   }
+
+   .action-icon--add {
+      width: 1.2rem;
+      height: 1.2rem;
+   }
+
+   .actions {
+      display: none;
+   }
+
+   .actions-container {
+      width: -webkit-fit-content;
+      width: -moz-fit-content;
+      width: fit-content
+   }
+
+   .actions-container:hover .actions,
+   .roles-hover:hover+.actions {
+      display: block;
+   }
+
+   .header-elements {
+      border: 1px solid #ebebeb;
+      border-radius: 16px 0px 16px 0px;
+      padding: 0.2rem 1rem;
+      background-color: #fff;
+      cursor: pointer;
+      box-shadow: 0px 5px 0px 0px var(--color-primary) !important;;
+      font-family: poppins;
+   }
+
+   .roles-ul {
+      list-style-type: none;
+      padding-left: 3rem;
+      position: relative;
+   }
+
+   .roles-ul li {
+      margin-bottom: 1rem;
+   }
+
+   .body-container {
+      margin: 0 2rem;
+      position: relative;
+      height: auto;
+      min-height: auto;
+   }
+
+   .roles-ul::before {
+      content: '';
+      position: absolute;
+      border-left: 5px solid;
+      height: 100%;
+      color: var(--color-primary) !important;
+      transform: translate(-25px, 8px)
+   }
+
+   .roles-ul li::before {
+      content: "";
+      position: absolute;
+      left: 1rem;
+      width: 2rem;
+      height: 0.5rem;
+      background: var(--color-primary) !important;
+      transform: translateY(0.8rem);
+   }
+
+   .hover-element-container-label,
+   .action-icon-container-label {
+      background-color: rgb(0 0 0 / 75%);
+      padding: 0.5rem 1rem;
+      border-radius: 1rem;
+      visibility: hidden;
+      position: absolute;
+      z-index: 10;
+      transition: all 0s 0.3s ease-out;
+   }
+
+   .text-three-dots {
+      display: inline-block;
+      width: 15rem;
+      white-space: nowrap;
+      overflow: hidden !important;
+      text-overflow: ellipsis;
+   }
+
+   .status-legend {
+      padding: 1rem;
+      margin-right: 2rem;
+      border: 1px solid;
+      border-radius: 10px;
+      gap: 1rem;
+      position: absolute;
+      right: 0;
+   }
+
+   .action-icon {
+      width: 15px;
+      height: 15px;
+      cursor: pointer;
+   }
+
+   .header-elements:hover {
+      background: var(--color-primary) !important;
+      border: 1px solid #fff;
+      color: #fff;
+      box-shadow: 0px 5px 0px 0px var(--color-primary) !important;;
+   }

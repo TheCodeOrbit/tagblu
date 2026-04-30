@@ -1,0 +1,120 @@
+   .text-right {
+        text-align: right;
+    }
+
+    .module {
+        border: 1px solid #ddd;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        overflow: hidden;
+    }
+
+    /* Header styling */
+    .module-header {
+        background-color: #f9f9f9;
+        padding: 10px;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    /* Arrow styling */
+    .module-header .arrow {
+        font-size: 14px;
+        transition: transform 0.3s;
+    }
+
+    /* Rotate arrow when active */
+    .module-header.active .arrow {
+        transform: rotate(180deg);
+    }
+
+    /* Collapsible content */
+    .module-content {
+        display: none;
+        /* Initially hidden */
+        padding: 10px;
+        background-color: #ffffff;
+    }
+
+    /* Table styling */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        padding: 8px;
+        border: 1px solid #ddd;
+        /* text-align: center; */
+    }
+
+    .write {
+        color: green;
+        font-weight: bold;
+    }
+
+    .read-only {
+        color: orange;
+    }
+
+    .invisible {
+        color: black;
+    }
+
+    /* Add color legends based on your design */
+
+
+    /* toogle css */
+
+
+    .toggle {
+        display: inline-block;
+        width: 60px;
+        height: 20px;
+        border-radius: 10px;
+        background-color: lightgray;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .indicator {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background-color: gray;
+        position: absolute;
+        top: 2px;
+        transition: all 0.3s ease;
+    }
+
+    /* State styles */
+    .state-invisible {
+        background-color: lavender;
+    }
+
+    .state-invisible .indicator {
+        background-color: black;
+        left: 2px;
+    }
+
+    .state-read-only {
+        background-color: lavender;
+    }
+
+    .state-read-only .indicator {
+        background-color: orange;
+        left: 22px;
+    }
+
+    .state-write {
+        background-color: lavender;
+    }
+
+    .state-write .indicator {
+        background-color: green;
+        left: 42px;
+    }

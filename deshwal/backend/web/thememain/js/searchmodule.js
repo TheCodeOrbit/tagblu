@@ -14,9 +14,15 @@
 document.addEventListener('click', function(event) {
     var dropdown = document.getElementById('moduleDropdown_search');
     var toggle = document.getElementById('moduleDropdownToggle');
+    var searchResults = document.getElementById('search-results-dropdown');
+    var searchInput = document.getElementById('searchinallmodule');
 
-    if (!dropdown.contains(event.target) && !toggle.contains(event.target)) {
+    if (dropdown && !dropdown.contains(event.target) && toggle && !toggle.contains(event.target)) {
         dropdown.style.display = 'none';
+    }
+    
+    if (searchResults && !searchResults.contains(event.target) && searchInput && !searchInput.contains(event.target)) {
+        searchResults.style.display = 'none';
     }
 });
 
@@ -40,20 +46,309 @@ document.querySelectorAll(".module-option").forEach(li => {
         document.getElementById('moduleDropdown').style.display = 'none';
     });
 });
-// $("#search_btn").on("click",function(e){
-$(document).on("click","#search_btn",function(e){
+// Global variables for search
+let searchTimeout = null;
+let currentSuggestion = "";
+let activeResultIndex = -1;
+let searchCache = {}; // Cache for instant suggestions
+
+$(document).on("input", "#searchinallmodule", function(e) {
+    const query = $(this).val();
+    const predictiveOverlay = $("#predictive-suggestion");
+    const dropdown = $("#search-results-dropdown");
+    
+    // Clear previous timeout
+    if (searchTimeout) clearTimeout(searchTimeout);
+    
+    // Check local cache for instant feedback
+    if (searchCache[query]) {
+        renderSearchDropdown(searchCache[query], query);
+        handlePredictiveSuggestion(searchCache[query], query);
+    } else {
+        // Show loading state if not in cache
+        if (!dropdown.is(':visible')) {
+            dropdown.html('<div class="search-loading-state"><div class="search-spinner"></div><span>Searching...</span></div>').show();
+        }
+    }
+
+    // Set a debounce timeout
+    searchTimeout = setTimeout(() => {
+        performRealTimeSearch(query);
+    }, 150);
+});
+
+$(document).on("submit", "#searchForminallmodule", function(e) {
+    e.preventDefault(); // Prevent old results page
+    const query = $("#searchinallmodule").val();
+    if (query.length >= 2) {
+        performRealTimeSearch(query);
+    }
+});
+
+$(document).on("keydown", "#searchinallmodule", function(e) {
+    const dropdown = $("#search-results-dropdown");
+    const results = dropdown.find(".search-result-item");
+    
+    if (e.key === "Tab" || e.key === "ArrowRight") {
+        if (currentSuggestion && $(this).val().length < currentSuggestion.length) {
+            e.preventDefault();
+            $(this).val(currentSuggestion);
+            $("#predictive-suggestion").text("");
+        }
+    } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        if (results.length > 0) {
+            activeResultIndex = (activeResultIndex + 1) % results.length;
+            updateActiveResult(results);
+        }
+    } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        if (results.length > 0) {
+            activeResultIndex = (activeResultIndex - 1 + results.length) % results.length;
+            updateActiveResult(results);
+        }
+    } else if (e.key === "Enter") {
+        if (activeResultIndex >= 0) {
+            e.preventDefault();
+            results.eq(activeResultIndex).click();
+        }
+    } else if (e.key === "Escape") {
+        dropdown.hide();
+    }
+});
+
+function updateActiveResult(results) {
+    results.removeClass("active");
+    const activeItem = results.eq(activeResultIndex);
+    activeItem.addClass("active");
+    
+    // Scroll into view if needed
+    const dropdown = $("#search-results-dropdown");
+    const itemTop = activeItem.position().top;
+    const itemBottom = itemTop + activeItem.outerHeight();
+    const dropdownHeight = dropdown.height();
+    
+    if (itemBottom > dropdownHeight) {
+        dropdown.scrollTop(dropdown.scrollTop() + (itemBottom - dropdownHeight));
+    } else if (itemTop < 0) {
+        dropdown.scrollTop(dropdown.scrollTop() + itemTop);
+    }
+}
+
+function performRealTimeSearch(query) {
+    const selectedModule = $("#selectedmodule").val() || 'all';
+    const tabid = $("#selectedid").val() || 'all';
+    const baseUrl = window.APP_BASE_URL || '/';
+    
+    // Use leads module as the base for global search action
+    const url = baseUrl + 'leads/searchinallmodule' +
+        '?search=' + encodeURIComponent(query) +
+        '&selectedmodule=' + encodeURIComponent(selectedModule) +
+        '&tabid=' + encodeURIComponent(tabid) +
+        '&limit=5' + 
+        '&mode=quick'; // Request optimized quick results
+
+    $.ajax({
+        url: url,
+        type: "GET",
+        dataType: "json",
+        success: function(data) {
+            searchCache[query] = data; // Save to local cache
+            renderSearchDropdown(data, query);
+            handlePredictiveSuggestion(data, query);
+        },
+        error: function() {
+            // Fallback to site/searchinallmodule if leads fails
+            const fallbackUrl = baseUrl + 'site/searchinallmodule' +
+                '?search=' + encodeURIComponent(query) +
+                '&selectedmodule=' + encodeURIComponent(selectedModule) +
+                '&tabid=' + encodeURIComponent(tabid) +
+                '&limit=5' +
+                '&mode=quick';
+            $.ajax({
+                url: fallbackUrl,
+                type: "GET",
+                dataType: "json",
+                success: function(data) {
+                    renderSearchDropdown(data, query);
+                    handlePredictiveSuggestion(data, query);
+                }
+            });
+        }
+    });
+}
+
+function handlePredictiveSuggestion(data, query) {
+    const predictiveOverlay = $("#predictive-suggestion");
+    let bestSuggestion = "";
+
+    if (data.status === 'success' && data.result) {
+        let allRecords = [];
+        if (data.search === 'single') {
+            allRecords = data.result.RecordList;
+        } else {
+            data.result.forEach(m => {
+                if (m.RecordList) allRecords = allRecords.concat(m.RecordList);
+            });
+        }
+
+        // Find best suggestion (starts with query, and is shortest among matches)
+        let matches = [];
+        allRecords.forEach(record => {
+            for (let key in record) {
+                if (key === 'RecordId' || typeof record[key] !== 'string') continue;
+                let val = record[key].trim();
+                if (val.toLowerCase().startsWith(query.toLowerCase()) && val.length > query.length) {
+                    matches.push(val);
+                }
+            }
+        });
+
+        if (matches.length > 0) {
+            matches.sort((a, b) => a.length - b.length);
+            bestSuggestion = matches[0];
+        }
+    }
+
+    if (bestSuggestion) {
+        currentSuggestion = bestSuggestion;
+        const typedPart = query;
+        const suggestedPart = bestSuggestion.substring(query.length);
+        // Use a span for the typed part to maintain exact spacing
+        predictiveOverlay.html(`<span style="opacity: 0;">${typedPart}</span>${suggestedPart}`);
+    } else {
+        predictiveOverlay.text("");
+        currentSuggestion = "";
+    }
+}
+
+function renderSearchDropdown(data, query) {
+    const dropdown = $("#search-results-dropdown");
+    dropdown.empty();
+    activeResultIndex = -1;
+
+    if (!data.result || (data.search === 'all' && data.result.length === 0) || (data.search === 'single' && data.result.RecordList.length === 0)) {
+        dropdown.html('<div class="search-no-results"><i class="fa fa-search"></i>No results found for "' + query + '"</div>');
+        dropdown.show();
+        return;
+    }
+
+    if (data.search === 'single') {
+        renderModuleSection(data.result, dropdown);
+    } else {
+        data.result.forEach(module => {
+            renderModuleSection(module, dropdown);
+        });
+    }
+
+    // Add "See all results" footer
+    const footer = $(`
+        <div class="search-dropdown-footer">
+            <a href="#" id="see-all-search-results">See all results for "${query}" <i class="fa fa-arrow-right"></i></a>
+        </div>
+    `);
+    
+    footer.find('a').on('click', function(e) {
+        e.preventDefault();
+        // Use native submit to bypass the jQuery e.preventDefault() listener
+        const form = document.getElementById("searchForminallmodule");
+        if (form) {
+            form.submit();
+        }
+    });
+
+    dropdown.append(footer);
+    dropdown.show();
+}
+
+function renderModuleSection(module, container) {
+    if (!module.RecordList || module.RecordList.length === 0) return;
+
+    const section = $('<div class="search-module-section"></div>');
+    section.append('<div class="search-module-header">' + module.modulename + '</div>');
+
+    module.RecordList.forEach(record => {
+        const title = findDisplayTitle(record);
+        const meta = findDisplayMeta(record, title);
+        const baseUrl = window.APP_BASE_URL || '/';
+        const url = baseUrl + module.ori_modulename.toLowerCase() + '/detail?Record=' + record.RecordId + '&tabid=' + module.tabid;
+
+        const item = $(`
+            <div class="search-result-item" data-url="${url}">
+                <div class="search-result-icon">
+                    <i class="fa ${getModuleIcon(module.ori_modulename)}"></i>
+                </div>
+                <div class="search-result-info">
+                    <div class="search-result-title">${title}</div>
+                    <div class="search-result-meta">${meta}</div>
+                </div>
+            </div>
+        `);
+
+        item.on("click", function() {
+            window.location.href = $(this).data("url");
+        });
+
+        section.append(item);
+    });
+
+    container.append(section);
+}
+
+function findDisplayTitle(record) {
+    // Try to find a name-like field
+    const nameKeys = ['leadname', 'subject', 'accountname', 'vendorname', 'productname', 'title', 'name', 'first_name'];
+    for (let key of nameKeys) {
+        if (record[key]) return record[key];
+    }
+    // Fallback to first non-RecordId field
+    for (let key in record) {
+        if (key !== 'RecordId' && record[key]) return record[key];
+    }
+    return "Untitled Record";
+}
+
+function findDisplayMeta(record, excludeTitle) {
+    const metaKeys = ['email', 'phone', 'mobile', 'status', 'createdtime', 'modifiedtime'];
+    let meta = [];
+    for (let key of metaKeys) {
+        if (record[key] && record[key] !== excludeTitle) {
+            meta.push(record[key]);
+            if (meta.length >= 2) break;
+        }
+    }
+    return meta.join(' • ');
+}
+
+function getModuleIcon(moduleName) {
+    const icons = {
+        'Leads': 'fa-user-plus',
+        'Accounts': 'fa-building',
+        'Contacts': 'fa-address-book',
+        'Opportunities': 'fa-briefcase',
+        'Products': 'fa-box',
+        'Tasks': 'fa-tasks',
+        'Meetings': 'fa-calendar',
+        'Quotes': 'fa-file-invoice-dollar',
+        'Invoices': 'fa-file-invoice',
+        'SalesOrder': 'fa-shopping-cart',
+        'PurchaseOrder': 'fa-shopping-bag',
+        'Vendors': 'fa-truck'
+    };
+    return icons[moduleName] || 'fa-file';
+}
+
+$(document).on("click", "#search_btn", function(e) {
     console.log("search_btn clicked");
     e.preventDefault();
     var searchValue = $("#searchinallmodule").val().trim();
-    if(searchValue === ""){
-      alert("Search input cannot be blank");
-      return false;
+    if (searchValue === "") {
+        alert("Search input cannot be blank");
+        return false;
+    } else {
+        $("#searchForminallmodule").submit();
     }
-    else{
-      $("#searchForminallmodule").submit(); 
-    }
-  
-  });
+});
    //end code added by ptpatel date 26-03-25
 
 //    code added on date 02-07-25 to resolve staging issue

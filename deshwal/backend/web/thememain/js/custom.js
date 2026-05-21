@@ -39,7 +39,7 @@ let sortorder = "";
 //             data: data,
 //             success: function (data) {
 //               console.log("this data", data);
-//               gridOptions.api.setGridOption("rowData", data.RecordList);
+//               gridApi.setGridOption("rowData", data.RecordList);
 //               if (data && data.totalitemcount && data.totalitemcount.noofpages) {
 //                 // totalPages = data.totalitemcount.noofpages;
 //                 // currentPage = data.totalitemcount.pagejumps;
@@ -1104,7 +1104,7 @@ const gridOptions = {
   processHeaderComponentParams: (params) => {
     return {
       ...params,
-      columnApi: gridOptions.columnApi, // Pass `columnApi` to each header component
+      columnApi: gridColumnApi, // Pass `columnApi` to each header component
     };
   },
   //added by deepika on 23/12/24
@@ -1126,8 +1126,8 @@ const gridOptions = {
 };
 
 window.addEventListener('resize', function() {
-    if (gridOptions.api) {
-        gridOptions.api.sizeColumnsToFit();
+    if (gridApi) {
+        gridApi.sizeColumnsToFit();
     }
 });
 
@@ -1366,10 +1366,10 @@ function fetchAndSetColumnDefinitions() {
       const columnDefs = [checkboxColumn, ...dynamicColumns, actionsColumn];
 
       // Set column definitions in the grid
-      //gridOptions.api.setColumnDefs(columnDefs);
-      gridOptions.api.setGridOption("columnDefs", columnDefs);
+      //gridApi.setColumnDefs(columnDefs);
+      gridApi.setGridOption("columnDefs", columnDefs);
       setTimeout(() => {
-          gridOptions.api.sizeColumnsToFit();
+          gridApi.sizeColumnsToFit();
       }, 0);
       // Fetch row data after setting column definitions
       //  fetchRowData();
@@ -1403,7 +1403,7 @@ function fetchRowData() {
     dataType: "json",
     success: function (data) {
       console.log("this data", data);
-      gridOptions.api.setGridOption("rowData", data);
+      gridApi.setGridOption("rowData", data);
     },
     error: function (error) {
       console.error("Error fetching row data:", error);
@@ -1414,7 +1414,7 @@ function fetchRowData() {
 // Initialize AG Grid after DOM is loaded
 document.addEventListener("DOMContentLoaded", function () {
   const gridDiv = document.querySelector("#myGrid");
-  new agGrid.Grid(gridDiv, gridOptions);
+  gridApi = agGrid.createGrid(gridDiv, gridOptions);
 });
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -1631,12 +1631,12 @@ function removeSelect2() {
           applyFilter();
         } else {
           console.error('Error deleting custom filter:', response.message);
-          alert('Error: ' + response.message);
+          showCustomToast('Error', response.message, 'error');
         }
       },
       error: function (error) {
         console.error('Error:', error);
-        alert('An error occurred while deleting the filter');
+        showCustomToast('Error', 'An error occurred while deleting the filter.', 'error');
       }
     });
   });
@@ -1713,7 +1713,7 @@ function removeSelect2() {
         data: data,
         success: function (data) {
           console.log("this data", data);
-          gridOptions.api.setGridOption("rowData", data.RecordList);
+          gridApi.setGridOption("rowData", data.RecordList);
           $("#filterByNameModel").modal("hide");
           if (data && data.totalitemcount && data.totalitemcount.noofpages) {
             // totalPages = data.totalitemcount.noofpages;
@@ -1774,7 +1774,7 @@ function removeSelect2() {
         },
         error: function (xhr, status, error) {
           console.error("An error occurred:", error);
-          alert("An error occurred while applying the filter.");
+          showCustomToast('Error', 'An error occurred while applying the filter.', 'error');
         },
         complete: function () {
           applyFilter();
@@ -1783,14 +1783,14 @@ function removeSelect2() {
   }
 
   function updateAgGridData(filteredRows) {
-    if (gridOptions && gridOptions.api) {
+    if (gridOptions && gridApi) {
       // Clear existing rows by removing all current rows
-      gridOptions.api.forEachNode((node) =>
-        gridOptions.api.applyTransaction({ remove: [node.data] })
+      gridApi.forEachNode((node) =>
+        gridApi.applyTransaction({ remove: [node.data] })
       );
 
       // Manually add new filtered rows
-      gridOptions.api.applyTransaction({ add: filteredRows });
+      gridApi.applyTransaction({ add: filteredRows });
     } else {
       console.error("Grid API not available.");
     }
@@ -1833,9 +1833,9 @@ function filterFields(searchTerm) {
 
 // selection functions
 function onRowSelectionChanged() {
-  const selectedRows = gridOptions.api.getSelectedRows();
+  const selectedRows = gridApi.getSelectedRows();
   const selectedCount = selectedRows.length;
-  const totalCount = gridOptions.api.getDisplayedRowCount();
+  const totalCount = gridApi.getDisplayedRowCount();
   
   const selectionInfo = document.getElementById("selection-info");
   if (selectionInfo) {
@@ -1859,39 +1859,45 @@ function onRowSelectionChanged() {
 }
 
 function deleteSelectedRows() {
-  const selectedRows = gridOptions.api.getSelectedRows(); // Get selected rows
-  const leadIds = selectedRows.map((row) => row.RecordId); // Extract lead IDs from selected rows
+  const selectedRows = gridApi.getSelectedRows();
+  const leadIds = selectedRows.map((row) => row.RecordId);
 
   if (leadIds.length === 0) {
-    alert("No rows selected for Archieve.");
+    showCustomToast('No Selection', 'Please select rows before archiving.', 'info');
     return;
   }
   csrfTokenName = $("#csrfTokenName").val();
   csrfToken = $("#csrfToken").val();
 
-  if (confirm("Are you sure you want to Archieve the selected rows?")) {
+  showCustomConfirm(
+    'Archive Records?',
+    'This will archive <b>' + leadIds.length + ' selected record(s)</b>. You can restore them later.',
+    'Archive',
+    'Cancel',
+    'danger'
+  ).then(function(confirmed) {
+    if (!confirmed) return;
     $.ajax({
-      url: "deleteselectedrow", // Replace with your delete endpoint
+      url: "deleteselectedrow",
       type: "POST",
       data: {
-        leadIds: leadIds, // Pass lead IDs to the server
+        leadIds: leadIds,
         _csrf: csrfToken,
       },
       success: function (response) {
         if (response.status === "success") {
-          alert("Selected rows Archieved successfully.");
-          // fetchRowData();
-          applyFilter();
+          showCustomToast('Archived', 'Selected records have been archived successfully.', 'success');
+          setTimeout(function(){ applyFilter(); }, 1000);
         } else {
-          alert("Error deleting rows: " + response.message);
+          showCustomToast('Error', response.message, 'error');
         }
       },
       error: function (error) {
         console.error("Error during deletion:", error);
-        alert("An error occurred while deleting rows.");
+        showCustomToast('Error', 'An error occurred while archiving rows.', 'error');
       },
     });
-  }
+  });
 }
 
 // Function to export selected rows to Excel
@@ -1899,7 +1905,7 @@ function deleteSelectedRows() {
 function exportSelectedRows() {
   const selectedRows = gridApi.getSelectedRows(); // Get selected rows
   if (selectedRows.length === 0) {
-    alert("Please select rows to export.");
+    showCustomToast('No Selection', 'Please select rows to export.', 'info');
     return;
   }
 
@@ -1921,14 +1927,14 @@ function exportSelectedRows() {
       console.log("Response from server:", response);
 
       if (!response.success) {
-        alert("Failed to export data. Server responded with an error.");
+        showCustomToast('Export Failed', 'Server responded with an error.', 'error');
         return;
       }
 
       const { headers, rows } = response;
 
       if (!headers || !rows) {
-        alert("Invalid data format received from the server.");
+        showCustomToast('Export Failed', 'Invalid data format received from the server.', 'error');
         console.error("Response:", response);
         return;
       }
@@ -1987,7 +1993,7 @@ function exportSelectedRows() {
       URL.revokeObjectURL(link.href);
     },
     error: function (error) {
-      alert("Failed to export data. Please try again.");
+      showCustomToast('Export Failed', 'Failed to export data. Please try again.', 'error');
       console.error("AJAX Error:", error);
     },
   });
@@ -2023,7 +2029,7 @@ $("#updateButton").click(function () {
     error: function (data) {
       // if error occured
 
-      alert("Error occured.please try again");
+      showCustomToast('Error', 'An error occurred. Please try again.', 'error');
     },
     complete: function () {
       stopLoading();
@@ -2063,7 +2069,7 @@ $(document).on("click", "#confirmUpdateButton", function () {
 
   // Validate inputs
   if (!hiddenLeadIds || !selectedValue || userInput.trim() === "") {
-    alert("Please fill in all fields before updating.");
+    showCustomToast('Missing Fields', 'Please fill in all fields before updating.', 'error');
     return;
   }
   csrfTokenName = $("#csrfTokenName").val();
@@ -2080,16 +2086,16 @@ $(document).on("click", "#confirmUpdateButton", function () {
     },
     success: function (response) {
       if (response.success) {
-        alert(response.message);
-        $("#updateModel").modal("hide"); // Close modal on success
-        location.reload();
+        showCustomToast('Update Successful', response.message, 'success');
+        $("#updateModel").modal("hide");
+        setTimeout(function(){ location.reload(); }, 1500);
       } else {
-        alert("Error: " + response.message);
+        showCustomToast('Update Failed', response.message, 'error');
       }
     },
     error: function (xhr, status, error) {
       console.error("AJAX Error:", error);
-      alert("An error occurred while updating.");
+      showCustomToast('Error', 'An error occurred while updating.', 'error');
     },
   });
 });

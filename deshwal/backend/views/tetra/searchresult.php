@@ -1,227 +1,265 @@
 <?php
-error_reporting(-1);
-ini_set("display_errors", true);
-
 use backend\assets\AdminAsset;
 use yii\helpers\Url;
 
 AdminAsset::register($this);
 
-$csrfTokenName = Yii::$app->request->csrfParam;
-$csrfToken = Yii::$app->request->csrfToken;
-
 $baseUrl = Yii::$app->HomeUrl;
-$scriptPath = $baseUrl . "js/$ModuleName/edit.js";
-$fullurl = Yii::$app->request->getUrl();
-
+$searchQuery = Yii::$app->request->get('search', '');
 ?>
 
-<?php
-// $this->registerJsFile('@web/thememain/js/searchmodule.js', ['depends' => [yii\web\JqueryAsset::class]]);
-$this->registerCss("
-    .pagination { display: flex; justify-content: center; margin-top: 10px; }
-    .pagination li { cursor: pointer; padding: 8px 12px; border: 1px solid #ddd; margin: 2px; }
-    .pagination li.active { background-color: #007bff; color: white; }
-    a,a:hover{color:#495057;}
-    .pagination li {cursor: pointer;padding:0 !important;border:0 !important;margin:0 !important;}
-    .page-item.active .page-link{background-color:#007bff;
-    border-color: #007bff;}
-");
-?>
+<div class="search-results-page">
+    <div class="search-header-premium">
+        <div class="container">
+            <h1 class="search-title">Search Results</h1>
+            <p class="search-subtitle">Found matches for "<span class="highlight"><?= htmlspecialchars($searchQuery) ?></span>" across all modules</p>
+        </div>
+    </div>
 
-<div class="container">
-    <?php //echo "<pre>";print_r($result);die; 
-    ?>
-    <span class="card" id="searchresult"></span>
-    <div id="table-container"></div>
+    <div class="container mt-4">
+        <div id="table-container" class="modern-search-container">
+            <div class="loading-state">
+                <div class="premium-spinner"></div>
+                <p>Gathering results from all modules...</p>
+            </div>
+        </div>
+    </div>
 </div>
 
+<style>
+.search-results-page {
+    background: #f8fafc;
+    min-height: 100vh;
+    padding-bottom: 50px;
+}
+
+.search-header-premium {
+    background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
+    padding: 60px 0;
+    color: white;
+    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2);
+}
+
+.search-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+}
+
+.search-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.highlight {
+    font-weight: 700;
+    text-decoration: underline;
+}
+
+.modern-search-container {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.module-section {
+    background: white;
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.module-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.module-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.module-badge {
+    background: #e0e7ff;
+    color: #4338ca;
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.result-card-premium {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: block;
+    text-decoration: none !important;
+    color: inherit !important;
+}
+
+.result-card-premium:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1);
+    border-color: #6366f1;
+}
+
+.result-main-info {
+    margin-bottom: 15px;
+}
+
+.result-primary-text {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 4px;
+    display: block;
+}
+
+.result-secondary-text {
+    font-size: 0.85rem;
+    color: #64748b;
+    display: block;
+}
+
+.result-meta-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.meta-tag {
+    font-size: 0.75rem;
+    background: #f1f5f9;
+    padding: 4px 10px;
+    border-radius: 6px;
+    color: #475569;
+}
+
+.loading-state {
+    text-align: center;
+    padding: 100px 0;
+}
+
+.premium-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #e0e7ff;
+    border-top: 4px solid #6366f1;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
 
 <script>
-    // let currentPage = 0;
-    // let paginationData = {};
+document.addEventListener('DOMContentLoaded', function() {
+    loadSearchResults();
+});
 
-    // // Function to load all module tables
-    // function loadTableData(page) {
-    //     currentPage = page === 0 ? page : page - 1;
-    //     let searchQuery = "<?php echo isset($_GET['search']) ? $_GET['search'] : ''; ?>";
-    //     let selectedmodule = "<?php echo isset($_GET['selectedmodule']) ? $_GET['selectedmodule'] : 'all'; ?>";
-    //     let tabid = "<?php echo isset($_GET['tabid']) ? $_GET['tabid'] : 'all'; ?>";
-    //     let url = '<?php echo Url::to(['searchinallmodule']) ?>' +
-    //         '?search=' + encodeURIComponent(searchQuery) +
-    //         '&selectedmodule=' + encodeURIComponent(selectedmodule) +
-    //         '&tabid=' + encodeURIComponent(tabid) +
-    //         '&pageNumber=' + currentPage;
+function loadSearchResults() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const search = urlParams.get('search') || '';
+    const selectedmodule = urlParams.get('selectedmodule') || 'all';
+    const tabid = urlParams.get('tabid') || 'all';
 
-    //     console.log("Loading all modules: ", url);
-    //     startLoading(); // Get selected module name
-    //     if (searchQuery != '') {
-    //         $("#searchresult").text(`Search Result for keyword ` + searchQuery + ` in ` + selectedmodule + ` module`);
-    //     }
-    //     $.ajax({
-    //         url: url,
-    //         type: "GET",
-    //         dataType: "json",
-    //         success: function(data) {
-    //             let container = document.getElementById('table-container');
-    //             container.innerHTML = '';
+    const ajaxUrl = '<?= Url::to(['searchinallmodule']) ?>' +
+        '?search=' + encodeURIComponent(search) +
+        '&selectedmodule=' + encodeURIComponent(selectedmodule) +
+        '&tabid=' + encodeURIComponent(tabid);
 
-    //             if (data.search === 'single') {
-    //                 renderSingleModuleTable(data.result, container, currentPage, searchQuery);
-    //             } else {
-    //                 data.result.forEach(module => {
-    //                     renderModuleTable(module, container, currentPage, searchQuery);
-    //                 });
-    //             }
-    //             stopLoading();
-    //         },
-    //         error: function(error) {
-    //             console.error("Error fetching row data:", error);
-    //             stopLoading();
-    //         }
-    //     });
-    // }
+    $.ajax({
+        url: ajaxUrl,
+        type: "GET",
+        dataType: "json",
+        success: function(data) {
+            renderModernResults(data);
+        },
+        error: function() {
+            document.getElementById('table-container').innerHTML = '<div class="alert alert-danger">Error loading results. Please try again.</div>';
+        }
+    });
+}
 
-    // // Function to load a single module table with pagination
-    // function loadsingleTableData(page, moduleName, tabid, searchQuery) {
-    //     console.log(`Loading single table: ${moduleName}, Page: ${page}, TabID: ${tabid}, Search: ${searchQuery}`);
+function renderModernResults(data) {
+    const container = document.getElementById('table-container');
+    container.innerHTML = '';
 
-    //     let currentPageKey = `currentPage_${moduleName}_${tabid}`;
-    //     paginationData[currentPageKey] = page === 0 ? page : page - 1;
+    const results = data.search === 'single' ? [data.result] : data.result;
 
-    //     let url = '<?php echo Url::to(['searchinallmodule']) ?>' +
-    //         '?search=' + encodeURIComponent(searchQuery) +
-    //         '&selectedmodule=' + encodeURIComponent(moduleName) +
-    //         '&tabid=' + encodeURIComponent(tabid) +
-    //         '&pageNumber=' + paginationData[currentPageKey];
+    if (!results || results.length === 0) {
+        container.innerHTML = '<div class="alert alert-info">No results found matching your search.</div>';
+        return;
+    }
 
-    //     startLoading();
+    results.forEach(module => {
+        if (module.RecordList.length > 0) {
+            const section = document.createElement('div');
+            section.className = 'module-section';
+            
+            let cardsHtml = '';
+            module.RecordList.forEach(record => {
+                const keys = Object.keys(module.Column);
+                const primaryText = record[keys[0]] || 'Untitled';
+                const secondaryText = record[keys[1]] || '';
+                
+                let tagsHtml = '';
+                for(let i=2; i<Math.min(5, keys.length); i++) {
+                    if(record[keys[i]]) {
+                        tagsHtml += `<span class="meta-tag">${module.Column[keys[i]]}: ${record[keys[i]]}</span>`;
+                    }
+                }
 
-    //     $.ajax({
-    //         url: url,
-    //         type: "GET",
-    //         dataType: "json",
-    //         success: function(data) {
-    //             let cardContainer = document.querySelector('.card_' + moduleName);
-    //             if (cardContainer) {
-    //                 cardContainer.innerHTML = '';
-    //                 renderSingleModuleTable(data.result, cardContainer, paginationData[currentPageKey], searchQuery);
-    //             }
-    //             stopLoading();
-    //         },
-    //         error: function(error) {
-    //             console.error("Error fetching row data:", error);
-    //             stopLoading();
-    //         }
-    //     });
-    // }
+                cardsHtml += `
+                    <a href="<?= Url::to(['detail']) ?>?Record=${record.RecordId}" class="result-card-premium">
+                        <div class="result-main-info">
+                            <span class="result-primary-text">${primaryText}</span>
+                            <span class="result-secondary-text">${secondaryText}</span>
+                        </div>
+                        <div class="result-meta-tags">
+                            ${tagsHtml}
+                        </div>
+                    </a>
+                `;
+            });
 
-    // // Function to render a single module's table
-    // function renderSingleModuleTable(result, container, currentPage, searchQuery) {
-    //     let moduleName = result.modulename;
-    //     let tabid = result.tabid;
-    //     paginationData[`currentPage_${moduleName}_${tabid}`] = currentPage;
+            section.innerHTML = `
+                <div class="module-header">
+                    <div class="module-name">${module.modulename}</div>
+                    <div class="module-badge">${module.totalitemcount.totrecords} Results</div>
+                </div>
+                <div class="results-grid">
+                    ${cardsHtml}
+                </div>
+            `;
+            container.appendChild(section);
+        }
+    });
 
-    //     let tableHtml = `
-    // <div class="card card_${moduleName}">
-    //     <h5 >${moduleName} - ${result.totalitemcount.totrecords}</h5>
-    //     <div class="table-responsive">
-    //         <table class="table table-bordered">
-    //             <thead class="thead-light">
-    //                 <tr>${Object.values(result.Column).map(value => `<th>${value}</th>`).join('')}</tr>
-    //             </thead>
-    //             <tbody>
-    //                 ${result.RecordList.length > 0 ? result.RecordList.map(record => `
-    //                     <tr>${Object.keys(result.Column).map(key => `
-    //                         <td><a href='<?= Url::to(['detail']) ?>?Record=${record.RecordId}' target='_blank'>${record[key] || ""}</a></td>
-    //                     `).join('')}</tr>
-    //                 `).join('') : `<tr><td colspan="${Object.keys(result.Column).length}" class="text-center">No Record Found.</td></tr>`}
-    //             </tbody>
-    //         </table>
-    //         <ul class="pagination" id="pagination_${moduleName}" data-tabid="${tabid}" data-search="${searchQuery}"></ul>
-    //     </div>
-    // </div>`;
-
-    //     container.innerHTML = tableHtml;
-    //     updatePagination(result.totalitemcount.noofpages, currentPage, moduleName, tabid, searchQuery);
-    // }
-
-    // // Function to render all modules' tables
-    // function renderModuleTable(module, container, currentPage, searchQuery) {
-    //     let moduleName = module.modulename;
-    //     let tabid = module.tabid;
-    //     paginationData[`currentPage_${moduleName}_${tabid}`] = currentPage;
-
-    //     let tableHtml = `
-    // <div class=" card card_${moduleName}">
-    //     <h5 class="mb-3">${moduleName} - ${module.totalitemcount.totrecords}</h5>
-    //     <div class="table-responsive">
-    //         <table class="table table-bordered">
-    //             <thead class="thead-light">
-    //                 <tr>${Object.values(module.Column).map(columnName => `<th>${columnName}</th>`).join('')}</tr>
-    //             </thead>
-    //             <tbody>
-    //                 ${module.RecordList.length > 0 ? module.RecordList.map(record => `
-    //                     <tr>${Object.keys(module.Column).map(key => `
-    //                         <td><a href='<?= Url::to(['detail']) ?>?Record=${record.RecordId}' target='_blank'>${record[key] || ""}</a></td>
-    //                     `).join('')}</tr>
-    //                 `).join('') : `<tr><td colspan="${Object.keys(module.Column).length}" class="text-center">No Record Found.</td></tr>`}
-    //             </tbody>
-    //         </table>
-    //         <ul class="pagination" id="pagination_${moduleName}" data-tabid="${tabid}" data-search="${searchQuery}"></ul>
-    //     </div>
-    // </div>`;
-
-    //     container.innerHTML += tableHtml;
-    //     updatePagination(module.totalitemcount.noofpages, currentPage, moduleName, tabid, searchQuery);
-    // }
-
-    // // Function to update pagination dynamically
-    // function updatePagination(totalPages, currentPage, moduleName, tabid, searchQuery) {
-    //     let pagination = document.getElementById('pagination_' + moduleName);
-    //     if (!pagination) return;
-
-    //     pagination.innerHTML = '';
-    //     pagination.setAttribute("data-tabid", tabid);
-    //     pagination.setAttribute("data-search", searchQuery);
-
-    //     if (totalPages <= 1) return;
-
-    //     for (let i = 1; i <= totalPages; i++) {
-    //         let pageItem = document.createElement('li');
-    //         pageItem.classList.add('page-item');
-    //         if (i - 1 === currentPage) {
-    //             pageItem.classList.add('active');
-    //         }
-
-    //         let pageLink = document.createElement('a');
-    //         pageLink.classList.add('page-link');
-    //         pageLink.href = "#";
-    //         pageLink.textContent = i;
-    //         pageLink.setAttribute("data-module", moduleName);
-    //         pageLink.setAttribute("data-tabid", tabid);
-    //         pageLink.setAttribute("data-search", searchQuery);
-
-    //         pageItem.appendChild(pageLink);
-    //         pagination.appendChild(pageItem);
-    //     }
-    // }
-
-    // // Event delegation for pagination click handling
-    // document.addEventListener('click', function(e) {
-    //     if (e.target.classList.contains('page-link')) {
-    //         e.preventDefault();
-    //         let moduleName = e.target.getAttribute("data-module");
-    //         let tabid = e.target.getAttribute("data-tabid");
-    //         let searchQuery = e.target.getAttribute("data-search");
-    //         let page = parseInt(e.target.textContent);
-
-    //         loadsingleTableData(page, moduleName, tabid, searchQuery);
-    //     }
-    // });
-
-    // // Load data on page load
-    // document.addEventListener('DOMContentLoaded', function() {
-    //     loadTableData(0);
-    // });
+    if (container.innerHTML === '') {
+        container.innerHTML = '<div class="alert alert-info">No results found matching your search.</div>';
+    }
+}
 </script>

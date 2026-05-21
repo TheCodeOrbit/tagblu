@@ -13414,7 +13414,7 @@ LIMIT 1;
                         Yii::$app->db->createCommand($sql)
                             ->bindValue(":contacts_id", $contacts_id)
                             // ->bindValue(":contact_role", 6) //requestor
-                            ->bindValue(":contact_role", '') //requestor
+                            ->bindValue(":contact_role", null) //requestor
                             ->bindValue(":sourcingdeal_id", $sourcingdeal_id)
                             ->bindValue(":creatorid", Yii::$app->user->id)
                             ->bindValue(":createdtime", date("Y-m-d H:i:s"))
@@ -13427,7 +13427,7 @@ LIMIT 1;
                         Yii::$app->db->createCommand($sql)
                             ->bindValue(":contacts_id", $contacts_id)
                             // ->bindValue(":contact_role", 6) //requestor
-                            ->bindValue(":contact_role", '') //requestor
+                            ->bindValue(":contact_role", null) //requestor
                             ->bindValue(":opportunity_id", $opportunity_id)
                             ->bindValue(":creatorid", Yii::$app->user->id)
                             ->bindValue(":createdtime", date("Y-m-d H:i:s"))

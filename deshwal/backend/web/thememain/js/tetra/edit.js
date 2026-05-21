@@ -2198,44 +2198,48 @@ function addRowBtn(blockid, mainmodule,isCount=0) {
 
 // remove multipl block row
 $(document).on("click", ".remove-row-btn", function (e) {
-  //code added by ptpatel to show confrim box when user remove row on date 19-11-2025
-    if (!confirm("Are you sure you want to remove this item?")) {
-        e.stopImmediatePropagation();
-        e.preventDefault(); // this required this will stop form submit
-        return false;
-    }
-  //end code added by ptpatel to show confrim box when user remove row on date 19-11-2025
+    e.preventDefault();
     var $btn = $(this);
-    var currentUrl = window.location.href.toLowerCase(); 
-    const isSalesOrder =/\/salesorder(\/|\?|$)/.test(currentUrl);
-       if (isSalesOrder) {
-        var inventory_id = $(this).closest('tr').find('[name*="inventory_id"]').val();
+    
+    showCustomConfirm(
+        'Remove Item?',
+        'Are you sure you want to remove this item?',
+        'Remove',
+        'Cancel',
+        'danger'
+    ).then(function(confirmed) {
+        if (!confirmed) return;
         
-        if (inventory_id) {
-          e.preventDefault();
-          $btn.closest("tr").remove();
-         updateExcludedList();
-          //   var geturl = getAbsoluteUrl();
-          //   var mainmodule = "salesorder";
-          //   var url = geturl + mainmodule + "/deleteitembyinvid";
-          //   $.ajax({
-          //       url: url,
-          //       type: 'POST',
-          //       dataType: 'json',
-          //       data: JSON.stringify({ inventory_id: inventory_id }),
-          //       contentType: 'application/json',
-          //       headers: { 'X-CSRF-Token': $('#csrfToken').val() },
-          //       success: function(response) {
-          //           if (response.status === 'success') {
-          //               $btn.closest("tr").remove();
-          //               updateExcludedList();
-          //           }
-          //       }
-          //   });
+        var currentUrl = window.location.href.toLowerCase(); 
+        const isSalesOrder =/\/salesorder(\/|\?|$)/.test(currentUrl);
+        if (isSalesOrder) {
+            var inventory_id = $btn.closest('tr').find('[name*="inventory_id"]').val();
+            
+            if (inventory_id) {
+                $btn.closest("tr").remove();
+                updateExcludedList();
+                //   var geturl = getAbsoluteUrl();
+                //   var mainmodule = "salesorder";
+                //   var url = geturl + mainmodule + "/deleteitembyinvid";
+                //   $.ajax({
+                //       url: url,
+                //       type: 'POST',
+                //       dataType: 'json',
+                //       data: JSON.stringify({ inventory_id: inventory_id }),
+                //       contentType: 'application/json',
+                //       headers: { 'X-CSRF-Token': $('#csrfToken').val() },
+                //       success: function(response) {
+                //           if (response.status === 'success') {
+                //               $btn.closest("tr").remove();
+                //               updateExcludedList();
+                //           }
+                //       }
+                //   });
+            }
+        }else{
+            $btn.closest("tr").remove();
         }
-    }else{
-      $btn.closest("tr").remove();
-    }
+    });
 });
 
 
@@ -4000,68 +4004,12 @@ function toggleSaveButton() {
       }
     }
      function showConfirm(msg = "Do you want to save the record?") {
-        return new Promise(function (resolve) {
-            
-            var modal = document.createElement('div');
-            modal.id = 'confirmModal';
-            modal.style.cssText = `
-                position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-                background: rgba(0,0,0,0.5); z-index: 99999;
-                display: flex; align-items: center; justify-content: center;
-                font-family: Arial, sans-serif;
-            `;
-            
-            var content = document.createElement('div');
-            content.style.cssText = `
-                background: white; padding: 24px; border-radius: 8px;
-                min-width: 320px; max-width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-                text-align: center;
-            `;
-            
-            var text = document.createElement('p');
-            text.id = 'confirmText';
-            text.textContent = msg;
-            text.style.cssText = 'margin: 0 0 20px 0; font-size: 16px; line-height: 1.4;';
-            
-            var yesBtn = document.createElement('button');
-            yesBtn.textContent = 'Yes';
-            yesBtn.style.cssText = `
-                background: var(--color-primary) !important; color: #fff; border: none; padding: 10px 24px;
-                margin-right: 12px; border-radius: 4px; cursor: pointer; font-size: 14px;
-                min-width: 70px;
-            `;
-            
-            var noBtn = document.createElement('button');
-            noBtn.textContent = 'No';
-            // noBtn.classList = 'btn btn-secondary';
-            noBtn.style.cssText = `
-               background: rgb(108, 117, 125); color: white; border: none; padding: 10px 24px;
-               border-radius: 4px; cursor: pointer; font-size: 14px; min-width: 70px;`;
-            
-            content.appendChild(text);
-            content.appendChild(yesBtn);
-            content.appendChild(noBtn);
-            modal.appendChild(content);
-            document.body.appendChild(modal);
-            
-            function cleanup(result) {
-                document.body.removeChild(modal);
-                resolve(result);
-            }
-            
-            yesBtn.onclick = () => cleanup(true);
-            noBtn.onclick = () => cleanup(false);
-            
-            modal.onclick = (e) => { if (e.target === modal) cleanup(false); };
-            
-            var escHandler = (e) => { if (e.key === 'Escape') cleanup(false); };
-            document.addEventListener('keydown', escHandler);
-            
-            modal._cleanup = () => {
-                document.removeEventListener('keydown', escHandler);
-                cleanup(false);
-            };
-        });
+        // Delegate to the global premium custom confirm dialog
+        if (typeof window.showCustomConfirm === 'function') {
+            return window.showCustomConfirm('Confirm Action', msg, 'Yes, Save', 'Cancel', 'primary');
+        }
+        // Fallback if custom-alerts.js hasn't loaded
+        return Promise.resolve(confirm(msg));
     }
 (function() {
    function updateNavbarMore() {

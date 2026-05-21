@@ -739,20 +739,23 @@ class SiteController extends Controller
             $TableName ='meeting_information';
             $where .= " (DATE($TableName.`from`) = CURDATE())";
         } else if ($name == "my_today_calls") {
-            $TableName .= "call_information";
+            $TableName = "call_information";
             $where .= " (DATE($TableName.`call_start_time`) = CURDATE())";
         } else if ($name == "my_today_tasks") {
-            $TableName .= "task_information";
+            $TableName = "task_information";
             $where .= " (DATE($TableName.`due_date`) = CURDATE())";
+        } else if ($name == "my_leads") {
+            $TableName = "leadinformation";
+            $where .= " $TableName.deleted = 0";
         } else if ($name == "my_opportunities") {
-            $TableName .= "opportunity";
-            $where .= "";
+            $TableName = "opportunity";
+            $where .= " $TableName.deleted = 0";
         } else if ($name == "my_opportunities_amount") {
-            $TableName .="opportunity";
-            $where .= "";
+            $TableName = "opportunity";
+            $where .= " $TableName.deleted = 0";
         }
         else if ($name == "my_sourcingdeal") {
-            $TableName .="sourcingdeal";
+            $TableName = "sourcingdeal";
             $where .= "$TableName.is_temp = 0";
         }
         if($TableName != ''){
@@ -1083,6 +1086,7 @@ class SiteController extends Controller
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
         $url = Yii::$app->request->get('widgetUrl');
+        $period = Yii::$app->request->get('period', 'this_week'); // Default to this_week
         // $modulename = Yii::$app->request->get('modulename');
         $modulename = (new \yii\db\Query())
             ->select('modulename')
@@ -1184,7 +1188,7 @@ class SiteController extends Controller
             foreach ($allMonths as $month) {
                 $match = null;
                 foreach ($monthlyStats as $row) {
-                    if (trim($row['month_name']) === $month) {
+                    if (trim($row['month_name'] ?? '') === $month) {
                         $match = $row;
                         break;
                     }
@@ -1319,7 +1323,82 @@ class SiteController extends Controller
                     (int) $result['age_3_plus_days']
                 ]
             ];
+        } else if ($url == 'activity-heatmap.php') {
+            $days = 30;
+            $activityData = [];
+            for ($i = 0; $i < $days; $i++) {
+                $date = date('Y-m-d', strtotime("-$i days"));
+                $leads = (new \yii\db\Query())->from('leadinformation')->where(['deleted' => 0])->andWhere(["DATE(createdtime)" => $date])->count();
+                $opps = (new \yii\db\Query())->from('opportunity')->where(['deleted' => 0])->andWhere(["DATE(createdtime)" => $date])->count();
+                $tasks = (new \yii\db\Query())->from('task_information')->where(["DATE(createdtime)" => $date])->count();
+                $calls = (new \yii\db\Query())->from('call_information')->where(["DATE(call_start_time)" => $date])->count();
+                $meetings = (new \yii\db\Query())->from('meeting_information')->where(["DATE(`from`)" => $date])->count();
+                
+                $activityData[] = ['x' => $date, 'y' => (int)$leads + (int)$opps + (int)$tasks + (int)$calls + (int)$meetings];
+            }
+            return ['series' => [['name' => 'Activity', 'data' => array_reverse($activityData)]]];
+        } else if ($url == 'sales-funnel.php') {
+            $periodCond = $this->getDateCondition('createdtime', $period);
+            $leadsCount = (new \yii\db\Query())->from('leadinformation')->where(['deleted' => 0])->andWhere($periodCond)->count();
+            $opprCount = (new \yii\db\Query())->from('opportunity')->where(['deleted' => 0])->andWhere($periodCond)->count();
+            $dealsCount = (new \yii\db\Query())->from('sourcingdeal')->where(['deleted' => 0, 'is_temp' => 0])->andWhere($periodCond)->count();
+            return ['leads' => (int)$leadsCount, 'opportunities' => (int)$opprCount, 'sourcing_deals' => (int)$dealsCount];
+        } else if ($url == 'status-distribution.php') {
+            $periodCond = $this->getDateCondition('createdtime', $period);
+            $stats = (new \yii\db\Query())->select(['leadstatus', 'COUNT(*) as cnt'])->from('leadinformation')->where(['deleted' => 0])->andWhere($periodCond)->groupBy('leadstatus')->all();
+            return ['labels' => array_column($stats, 'leadstatus'), 'series' => array_map('intval', array_column($stats, 'cnt'))];
+        } else if ($url == 'calls-vs-meetings.php') {
+            $months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            $callData = [];
+            $meetingData = [];
+            
+            for ($m = 1; $m <= 12; $m++) {
+                $calls = (new \yii\db\Query())
+                    ->from('call_information')
+                    ->andWhere(['MONTH(call_start_time)' => $m])
+                    ->andWhere(['YEAR(call_start_time)' => date('Y')])
+                    ->count();
+                $meetings = (new \yii\db\Query())
+                    ->from('meeting_information')
+                    ->andWhere(['MONTH(`from`)' => $m])
+                    ->andWhere(['YEAR(`from`)' => date('Y')])
+                    ->count();
+                    
+                $callData[] = (int)$calls;
+                $meetingData[] = (int)$meetings;
+            }
+            
+            return [
+                'months' => $months,
+                'calls' => $callData,
+                'meetings' => $meetingData
+            ];
+        } else if ($url == 'revenue-forecast.php') {
+            $periodCond = $this->getDateCondition('createdtime', $period);
+            $won = (new \yii\db\Query())->select(["DATE_FORMAT(createdtime, '%b') as month", "SUM(total_oppr_amount_tax_include) as total"])->from('opportunity')->where(['deleted' => 0, 'sales_stage' => 'Closed Won'])->andWhere($periodCond)->groupBy("MONTH(createdtime)")->all();
+            $projected = (new \yii\db\Query())->select(["DATE_FORMAT(createdtime, '%b') as month", "SUM(total_oppr_amount_tax_include * probability / 100) as total"])->from('opportunity')->where(['deleted' => 0])->andWhere(['NOT IN', 'sales_stage', ['Closed Won', 'Closed Lost']])->andWhere($periodCond)->groupBy("MONTH(createdtime)")->all();
+            return ['won' => $won, 'projected' => $projected];
+        }
+        return [];
+    }
 
+    /**
+     * Helper to get date condition based on period
+     */
+    private function getDateCondition($column, $period) {
+        switch ($period) {
+            case 'today':
+                return "DATE($column) = CURDATE()";
+            case 'this_week':
+                return "YEARWEEK($column, 1) = YEARWEEK(CURDATE(), 1)";
+            case 'this_month':
+                return "MONTH($column) = MONTH(CURDATE()) AND YEAR($column) = YEAR(CURDATE())";
+            case 'this_quarter':
+                return "QUARTER($column) = QUARTER(CURDATE()) AND YEAR($column) = YEAR(CURDATE())";
+            case 'this_year':
+                return "YEAR($column) = YEAR(CURDATE())";
+            default:
+                return "1=1";
         }
     }
 

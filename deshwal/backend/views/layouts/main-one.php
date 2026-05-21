@@ -12,7 +12,7 @@ use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
 use backend\assets\AdminAsset;
 use backend\models\AccessCheck;
-use common\widgets\Alert;
+// Alert widget removed — flash messages now use custom toast (custom-alerts.js)
 use app\models\SiteSetting;
 
 //fetch logo
@@ -20,7 +20,8 @@ $siteSetting = SiteSetting::find()
             ->where(['active' => 1])->one();
 
 AdminAsset::register($this);
-$baseUrl = Yii::$app->HomeUrl;
+$baseUrl = rtrim(Yii::$app->request->baseUrl, '/') . '/';
+echo "<script>window.APP_BASE_URL = '$baseUrl';</script>";
 $this->registerCssFile($baseUrl . 'thememain/css/theme-override.css', ['depends' => [\backend\assets\AdminAsset::class]]);
 $model = new AccessCheck();
 $id = Yii::$app->user->id;
@@ -49,8 +50,9 @@ if ($access == 0) {
 }
 ?>
 <!-- css and js added by ptpatel -->
-<!-- <link href="<?= $baseUrl;?>/thememain/css/searchcss.css" rel="stylesheet"> -->
-<?php $this->registerCssFile($baseUrl.'thememain/css/searchcss.css');?>
+<!-- <link href="<?= $baseUrl;?>thememain/css/searchcss.css" rel="stylesheet"> -->
+<?php $this->registerCssFile($baseUrl . 'thememain/css/searchcss.css');?>
+<?php $this->registerCssFile($baseUrl . 'thememain/css/custom-alerts.css');?>
 <?php
 $uid = Yii::$app->user->id;
 $activeroleId = Yii::$app->session->get('active_profile_id');
@@ -211,7 +213,7 @@ if ($idres != '1') {
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
    <title><?= Html::encode($this->title) ?></title>
-   <link rel="stylesheet" href="<?= $baseUrl; ?>/thememain/css/style-one.css">
+   <link rel="stylesheet" href="<?= $baseUrl; ?>thememain/css/style-one.css">
    <!-- <link rel="stylesheet"
       href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.0/css/all.min.css"
@@ -423,7 +425,7 @@ if ($idres != '1') {
     </div>
 <?php endif; ?>
 
-             <form role="search" method="get" id="searchForminallmodule" class="search-form form" action="<?= Yii::$app->request->baseUrl; ?>/leads/searchinallmodule?pageNumber=0">
+             <form role="search" method="get" id="searchForminallmodule" class="search-form form" action="<?= $baseUrl; ?>leads/searchinallmodule?pageNumber=0">
                 
                 <!-- Search Icon & Input -->
                 <div class="search-input-group">
@@ -432,7 +434,11 @@ if ($idres != '1') {
                          <?= SvgRenderHelper::renderIcon('iconamoon-search-thin.svg'); ?>
                       </span>
                    </button>
-                   <input type="search" class="search-field" placeholder="Search..." value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>" name="search" title="" id="searchinallmodule" />
+                   <div class="search-field-wrapper">
+                       <input type="search" class="search-field" placeholder="Search..." value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>" name="search" title="" id="searchinallmodule" autocomplete="off" />
+                       <div id="predictive-suggestion" class="predictive-suggestion"></div>
+                       <div id="search-results-dropdown" class="search-results-dropdown"></div>
+                   </div>
                 </div>
 
                 <?php
@@ -514,7 +520,7 @@ if ($idres != '1') {
                    <details class="dropdown right">
                       <summary class="avatar">
                          <div title="Profile" class="profile-img-div"><img
-                               src="<?= $baseUrl; ?>/thememain/profile/<?= Html::encode($userimage); ?>" width="25"
+                               src="<?= $baseUrl; ?>thememain/profile/<?= Html::encode($userimage); ?>" width="25"
                                height="25" alt="User Image">
                             <br>
                             <div><?= $username ?></div>
@@ -525,7 +531,7 @@ if ($idres != '1') {
                          <li>
                             <div class="user-info">
                                <div class="avatar-profile"><img class="search-icon"
-                                     src="<?= $baseUrl; ?>/thememain/profile/<?= Html::encode($userimage); ?>"
+                                     src="<?= $baseUrl; ?>thememain/profile/<?= Html::encode($userimage); ?>"
                                      width="25" height="25" alt="User Image"></div>
 
                                <div class="details">
@@ -713,7 +719,33 @@ if ($uid !== 1) {
          <div id="loading-overlay">
             <div class="loading-spinner"></div>
          </div>
-         <?= Alert::widget() ?>
+         <?php
+            // Convert Yii2 flash messages to custom toasts instead of the old green/red bar
+            $session = Yii::$app->session;
+            $flashes = $session->getAllFlashes();
+            $flashData = [];
+            $typeMap = ['success' => 'success', 'error' => 'error', 'danger' => 'error', 'info' => 'info', 'warning' => 'info'];
+            foreach ($flashes as $type => $flash) {
+                $toastType = isset($typeMap[$type]) ? $typeMap[$type] : 'info';
+                foreach ((array) $flash as $message) {
+                    $flashData[] = ['type' => $toastType, 'message' => $message];
+                }
+                $session->removeFlash($type);
+            }
+         ?>
+         <?php if (!empty($flashData)): ?>
+         <script>
+         document.addEventListener('DOMContentLoaded', function() {
+             var flashes = <?= json_encode($flashData) ?>;
+             flashes.forEach(function(f) {
+                 var title = f.type === 'success' ? 'Success' : (f.type === 'error' ? 'Error' : 'Info');
+                 if (typeof showCustomToast === 'function') {
+                     showCustomToast(title, f.message, f.type);
+                 }
+             });
+         });
+         </script>
+         <?php endif; ?>
          
          <?= $content; ?>
    </div>
@@ -758,6 +790,8 @@ if ($uid !== 1) {
 <input type="hidden" id="selectmultyids" name="d-selectmultyids" value="">
 <!-- added by ptpatel on date 29-03-25 -->
 <!-- <script type="text/javascript" src="<?=  $baseUrl;?>thememain/js/searchmodule.js"></script> -->
+<!-- Custom Alerts globally -->
+<script type="text/javascript" src="<?= $baseUrl; ?>thememain/js/custom-alerts.js"></script>
 <?php $this->registerJsFile($baseUrl.'thememain/js/searchmodule.js');?>
 <script type="text/javascript" nonce="<?= Yii::$app->params['cspNonce'] ?>" src="<?= $baseUrl; ?>thememain/js/flatpickr.js"></script>
 <script type="text/javascript" nonce="<?= Yii::$app->params['cspNonce'] ?>" src="<?= $baseUrl; ?>thememain/js/tetra/setparentforpopup.js"></script>
@@ -765,11 +799,11 @@ if ($uid !== 1) {
 <script type="text/javascript" nonce="<?= Yii::$app->params['cspNonce'] ?>" src="<?= $baseUrl; ?>thememain/js/tetra/setdate.js"></script>
 <?php //echo "hi";die ?>
 <?php if($moduleName == "profile"){?>
-   <link href="<?= $baseUrl;?>/thememain/css/bootstrap.min.css" rel="stylesheet">
-   <link href="<?= $baseUrl;?>/thememain/css/multiple.css" rel="stylesheet">
-   <link href="<?= $baseUrl;?>/thememain/css/select2.min.css" rel="stylesheet">
-   <link href="<?= $baseUrl;?>/thememain/css/multilist-dd.css" rel="stylesheet">
-   <link href="<?= $baseUrl;?>/thememain/css/jquery.dataTables.min.css">
+   <link href="<?= $baseUrl;?>thememain/css/bootstrap.min.css" rel="stylesheet">
+   <link href="<?= $baseUrl;?>thememain/css/multiple.css" rel="stylesheet">
+   <link href="<?= $baseUrl;?>thememain/css/select2.min.css" rel="stylesheet">
+   <link href="<?= $baseUrl;?>thememain/css/multilist-dd.css" rel="stylesheet">
+   <link href="<?= $baseUrl;?>thememain/css/jquery.dataTables.min.css">
 
    <script type="text/javascript" src="<?= $baseUrl;?>thememain/jquery/jquery.min.js"></script>
    <script type="text/javascript" src="<?= $baseUrl;?>thememain/bootstrap/bootstrap.min.js"></script>
@@ -782,8 +816,8 @@ if ($uid !== 1) {
 if($moduleName == "leads" && $action == 'detail'){
    ?>
    <script type="text/javascript" src="<?= $baseUrl; ?>thememain/js/select2.min.js"></script>
-   <link rel="stylesheet" href="<?= $baseUrl; ?>/thememain/css/select2.min.css">
-   <link rel="stylesheet" href="<?= $baseUrl; ?>/thememain/css/multilist-dd.css">
+   <link rel="stylesheet" href="<?= $baseUrl; ?>thememain/css/select2.min.css">
+   <link rel="stylesheet" href="<?= $baseUrl; ?>thememain/css/multilist-dd.css">
    <?php if(isset($scriptPath)) {?>
    <script type="text/javascript" src="<?= $scriptPath ?>"></script>
    <?php } ?>

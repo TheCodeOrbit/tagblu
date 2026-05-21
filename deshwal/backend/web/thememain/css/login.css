@@ -78,18 +78,18 @@ background-size: cover;
   /* font-family:poppins; */
 }
 
-.form-group {
+.form-group, .mb-3 {
   margin-bottom: 15px;
 }
 
-.form-group label {
+.form-group label, .mb-3 label {
   display: block;
   font-size: 0.9rem;
   margin-bottom: 5px;
   /* font-family:poppins; */
 }
 
-.form-group input {
+.form-group input, .mb-3 input {
   width: 100%;
   padding: 10px;
   font-size: 1rem;

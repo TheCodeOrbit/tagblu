@@ -9,10 +9,8 @@ class LoginformAsset extends AssetBundle
     public $basePath = '@webroot';
     public $baseUrl = '@web';
     public $css = [
-        // 'theme/css/bootstrap.min.css',
-        // 'thememain/css/login.css',
-       
-        
+        'theme/css/bootstrap.min.css',
+        'thememain/css/login.css',
     ];
 
     public $js = [

@@ -44,10 +44,10 @@ if (!empty($leadInformation)) {
     // code added by ptpatel on date 07-04-25
     if (isset($lead[$kanbnacolumn])) {
       foreach ($eachStatusCounts as $status) {
-        if ($lead[$kanbnacolumn] == $status[$kanbanstatusvalue]) {
+        if (isset($status[$kanbanstatusvalue]) && $lead[$kanbnacolumn] == $status[$kanbanstatusvalue]) {
 
-          $leadsByStatus[$lead[$kanbnacolumn]]['total'] = $status['total'];
-          $leadsByStatus[$lead[$kanbnacolumn]]['id'] = $status['leadstatusid'];
+          $leadsByStatus[$lead[$kanbnacolumn]]['total'] = isset($status['total']) ? $status['total'] : 0;
+          $leadsByStatus[$lead[$kanbnacolumn]]['id'] = isset($status[$kanbanstatusid]) ? $status[$kanbanstatusid] : 0;
           $leadsByStatus[$lead[$kanbnacolumn]][] = $lead;
         }
       }
@@ -91,7 +91,7 @@ if (isset($sourceModule)) {
 // }
 
 ?>
-<style type="text/css" nonce="<?= Yii::$app->params['cspNonce'] ?>">
+<style type="text/css" nonce="<?= Yii::$app->params['cspNonce'] ?? '' ?>">
   /* Default clipping for all cells */
   /* .ag-cell {
     white-space: nowrap !important;

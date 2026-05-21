@@ -3,25 +3,33 @@ version: '3.8'
 services:
   web:
     image: webdevops/php-apache:8.1
+    container_name: deshwal-web
     ports:
       - "8080:80"
     volumes:
-      - ./:/app
+      - ./:/app:delegated
     environment:
       - WEB_DOCUMENT_ROOT=/app
       - PHP_DISPLAY_ERRORS=1
+      - PHP_OPCACHE_ENABLE=0
+      - PHP_INI_SCAN_DIR=:/opt/docker/etc/php/conf.d
+      - PHP_INI_OVERRIDE_realpath_cache_size=4096k
+      - PHP_INI_OVERRIDE_realpath_cache_ttl=600
     depends_on:
       - db
-      
+
   db:
     image: mariadb:10.5
+    container_name: deshwal-db
+    command: --innodb-strict-mode=OFF
     ports:
       - "3306:3306"
     environment:
-      - MYSQL_ROOT_PASSWORD=secret
+      - MYSQL_ROOT_PASSWORD=Root@123
       - MYSQL_DATABASE=deshwal
     volumes:
       - db_data:/var/lib/mysql
-      
+      - ./deshwal_db.sql:/docker-entrypoint-initdb.d/deshwal_db.sql
+
 volumes:
   db_data:

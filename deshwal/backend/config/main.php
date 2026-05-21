@@ -312,26 +312,24 @@ $config = [
             'identityCookie' => [
                 'name' => '_identity-backend',
                 'httpOnly' => true,
-                //'path' => '/deshwal/admin',   // ✅ use `/` not `/admin`
+                'path' => '/',
             ],
             'loginUrl' => ['/site/login'],
         ],
         'session' => [
             'name' => 'advanced-backend',
             'cookieParams' => [
-                //'path' => '/deshwal/admin',   // ✅ use `/`
+                'path' => '/',
                 'httpOnly' => true,
             ],
         ],
         'request' => [
-            'class' => 'common\components\Request',
-            'web' => '/backend/web',
+            'baseUrl' => '/admin',
             'csrfParam' => '_csrf',
             'csrfCookie' => [
                 'httpOnly' => true,
-               // 'path' => '/deshwal/admin',  // ✅ backend only
+                'path' => '/',
             ],
-            'adminUrl' => '/admin'
         ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
@@ -353,7 +351,7 @@ $config = [
             'showScriptName' => false,
             'rules' => [
                 // Rule to skip the controller name and map it to an action directly
-                'admin/<action:\w+>' => 'admin/site/<action>',
+                '<action:\w+>' => 'site/<action>',
                 'leads/<action:\w+>' => 'leads/default/<action>',
                 'vendoraccount/<action:\w+>' => 'vendoraccount/default/<action>',
                 'vendor/<action:\w+>' => 'vendor/default/<action>',

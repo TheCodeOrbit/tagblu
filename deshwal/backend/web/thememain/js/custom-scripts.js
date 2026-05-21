@@ -204,7 +204,7 @@ $(document).ready(function () {
 
     // Validate inputs
     if (!hiddenLeadIds || !selectedValue || userInput.trim() === "") {
-      alert("Please fill in all fields before updating.");
+      showCustomToast('Missing Fields', 'Please fill in all fields before updating.', 'error');
       return;
     }
 
@@ -220,16 +220,16 @@ $(document).ready(function () {
       },
       success: function (response) {
         if (response.success) {
-          alert(response.message);
-          $("#updateModel").modal("hide"); // Close modal on success
-          location.reload();
+          showCustomToast('Update Successful', response.message, 'success');
+          $("#updateModel").modal("hide");
+          setTimeout(function(){ location.reload(); }, 1500);
         } else {
-          alert("Error: " + response.message);
+          showCustomToast('Update Failed', response.message, 'error');
         }
       },
       error: function (xhr, status, error) {
         console.error("AJAX Error:", error);
-        alert("An error occurred while updating.");
+        showCustomToast('Error', 'An error occurred while updating.', 'error');
       },
     });
   });
@@ -554,43 +554,50 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function deleteSelectedRows() {
-  const selectedRows = gridOptions.api.getSelectedRows(); // Get selected rows
-  const leadIds = selectedRows.map((row) => row.leadid); // Extract lead IDs from selected rows
+  const selectedRows = gridOptions.api.getSelectedRows();
+  const leadIds = selectedRows.map((row) => row.leadid);
 
   if (leadIds.length === 0) {
-    alert("No rows selected for deletion.");
+    showCustomToast('No Selection', 'Please select rows before deleting.', 'info');
     return;
   }
 
-  if (confirm("Are you sure you want to delete the selected rows?")) {
+  showCustomConfirm(
+    'Delete Records?',
+    'This will permanently delete <b>' + leadIds.length + ' selected record(s)</b>. This action cannot be undone.',
+    'Delete',
+    'Cancel',
+    'danger'
+  ).then(function(confirmed) {
+    if (!confirmed) return;
     $.ajax({
-      url: "delete-selected-leads", // Replace with your delete endpoint
+      url: "delete-selected-leads",
       type: "POST",
       data: {
-        leadIds: leadIds, // Pass lead IDs to the server
+        leadIds: leadIds,
         _csrf: yii.getCsrfToken(),
       },
       success: function (response) {
         if (response.status === "success") {
-          alert("Selected rows deleted successfully.");
-          fetchRowData();
+          showCustomToast('Deleted', 'Selected records have been removed.', 'success');
+          setTimeout(function(){ fetchRowData(); }, 1000);
         } else {
-          alert("Error deleting rows: " + response.message);
+          showCustomToast('Delete Failed', response.message, 'error');
         }
       },
       error: function (error) {
         console.error("Error during deletion:", error);
-        alert("An error occurred while deleting rows.");
+        showCustomToast('Error', 'An error occurred while deleting rows.', 'error');
       },
     });
-  }
+  });
 }
 
 // Function to export selected rows to Excel
 function exportSelectedRows() {
   const selectedRows = gridApi.getSelectedRows(); // Get selected rows
   if (selectedRows.length === 0) {
-    alert("Please select rows to export.");
+    showCustomToast('No Selection', 'Please select rows to export.', 'info');
     return;
   }
 
@@ -965,3 +972,56 @@ window.onload = function () {
     }
   });
 };
+
+// Automatically mark all mandatory fields with a red asterisk (*)
+$(document).ready(function () {
+  function markAllMandatoryFields() {
+    $('input, select, textarea').each(function () {
+      var fieldClass = $(this).attr('class') || '';
+      if (fieldClass.indexOf('~M') !== -1 || $(this).prop('required')) {
+        var $field = $(this);
+        var id = $field.attr('id');
+        var $label = $();
+
+        // 1. Try to find label by 'for' attribute
+        if (id) {
+          $label = $('label[for="' + id + '"]');
+        }
+
+        // 2. Try to find label in the parent container
+        if (!$label.length) {
+          $label = $field.closest('.form-group, .d-flex, td, tr').find('label');
+        }
+
+        // 3. Try to find label inside previous elements/siblings
+        if (!$label.length) {
+          $label = $field.parent().prev().find('label');
+          if (!$label.length) {
+            $label = $field.prev('label');
+          }
+        }
+
+        // If label is found, append the asterisk if not already present
+        if ($label.length) {
+          $label.each(function () {
+            var $lbl = $(this);
+            if ($lbl.text().indexOf('*') === -1 && !$lbl.find('.required').length) {
+              $lbl.append(' <span class="required text-danger" style="color: red !important; font-weight: bold;">*</span>');
+            }
+          });
+        }
+      }
+    });
+  }
+
+  // Run on load and after short delay to catch dynamic/delayed renders
+  markAllMandatoryFields();
+  setTimeout(markAllMandatoryFields, 500);
+  setTimeout(markAllMandatoryFields, 1500);
+
+  // Run on AJAX complete to catch fields loaded dynamically
+  $(document).ajaxComplete(function () {
+    setTimeout(markAllMandatoryFields, 200);
+  });
+});
+

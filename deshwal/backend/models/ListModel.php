@@ -637,6 +637,7 @@ class ListModel extends \yii\db\ActiveRecord
         // echo "<br>Query=$Query";
         // die;
 
+        file_put_contents(Yii::getAlias('@backend') . '/web/sql.log', $Query . "\n", FILE_APPEND);
         return array($Column, $Query, $totalitemcount);
     }
     public function getPickListDetail($fieldid)

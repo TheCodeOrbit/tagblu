@@ -9,5 +9,5 @@ return [
     'user.passwordResetTokenExpire' => (3600 * 12),
     'user.passwordMinLength' => 8,
     'apiToken' => 'jKu3mMizMZHb',//'your_secret_token_here',
-    
+    'cspNonce' => '',
 ];

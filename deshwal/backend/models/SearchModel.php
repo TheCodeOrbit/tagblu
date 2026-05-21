@@ -789,26 +789,20 @@ WHERE related_module=(SELECT tabid from tab where name = :relatedmodule) and  mo
     }
 
     /**Below function added by ptpatel on date 30-08-2025 to resolve issue if logged in user id not found in customview then it get it from admin  */
-    public function getSearchAllColumnList()
+    public function getSearchAllColumnList($isQuick = false)
     {
         $table_name = $this->tableName();
         $connection = Yii::$app->db;
-       /* $command = $connection->createCommand("
-            SELECT field.fieldid, field.columnname AS fieldname, field.fieldlabel, field.uitype, field.tablename 
-            FROM customview 
-            JOIN cvcolumnlist ON customview.cvid = cvcolumnlist.cvid
-            JOIN field ON cvcolumnlist.columnname = field.columnname
-            WHERE  UPPER(customview.entitytype) = UPPER(:entitytype)
-            AND customview.setdefault = :setdefault 
-            AND field.tablename = :tablename 
-            And customview.userid = :userid
-            ORDER BY cvcolumnlist.columnindex
-            ")
-            ->bindValue(':entitytype', $this->moduleName)
-            ->bindValue(':setdefault', 1)
-            ->bindValue(':userid', 1)
-            ->bindValue(':tablename', $table_name);*/
-            //change on date 07-01-2026 to get all column to view in result by ptpatel
+
+        if ($isQuick) {
+            // Fetch more columns for better search accuracy, but still limited
+            $query = "SELECT fieldid, columnname AS fieldname, fieldlabel, uitype, tablename
+                      FROM field 
+                      WHERE tablename = :tablename 
+                      AND (list_view = 1 OR uitype = 1 OR uitype = 2) 
+                      ORDER BY sequence ASC";
+            $command = $connection->createCommand($query)->bindValue(':tablename', $table_name);
+        } else {
             $command = $connection->createCommand("
             SELECT field.fieldid, field.columnname AS fieldname, field.fieldlabel, field.uitype, field.tablename
             FROM field 
@@ -817,28 +811,31 @@ WHERE related_module=(SELECT tabid from tab where name = :relatedmodule) and  mo
             ORDER BY sequence
             ")
             ->bindValue(':tablename', $table_name);
+        }
 
             // field.detail_view = 1 OR
             //         field.create_view = 1 OR  
             //         field.edit_view = 1
         $ColumnList = $command->queryAll();
-        // get column from field which actual exists in main table 
+        // Skip slow SHOW COLUMNS check in quick mode to save time
+        if ($isQuick) {
+            return $ColumnList;
+        }
+        
+        // For full mode, still perform the check but efficiently
         $validColumns = [];
         $actualColumns = Yii::$app->db->createCommand("SHOW COLUMNS FROM `$table_name`")->queryColumn();
         foreach ($ColumnList as $field) {
             if (in_array($field['fieldname'], $actualColumns)) {
-                //$field['fieldname']= str_replace(' ', '', $field['fieldname']); //remove space from coulmname like movement _activity_floor
-                if($field['fieldname'] == "movement _activity_floor" && $table_name == 'drilling') {}
-                else
-                    $validColumns[] = $field;
+                $validColumns[] = $field;
             }
         }
         return $validColumns;
     }
 
-    public function getsearchAllListRecord($tableName, $keyword, $OrderBy = '', $SortOrder = '', $rolebasedrecord = '', $modulepermission = '')
+    public function getsearchAllListRecord($tableName, $keyword, $OrderBy = '', $SortOrder = '', $rolebasedrecord = '', $modulepermission = '', $isQuick = false)
     {
-        $ColumnList = $this->getSearchAllColumnList();
+        $ColumnList = $this->getSearchAllColumnList($isQuick);
         // print_r($ColumnList);die;
         list($Column, $ListQuery, $totalitemcount) = $this->getQuery($tableName, $keyword, $ColumnList, $OrderBy, $SortOrder, $rolebasedrecord, $modulepermission);
         // echo $ListQuery;die;

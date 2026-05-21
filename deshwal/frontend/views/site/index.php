@@ -132,8 +132,8 @@ function statusClass($status){
                 </tr>
             </thead>
             <tbody>
-                <?php foreach($paymentData as $pdata){ 
-                    $status_class = statusClass($pdata["status"]);
+                <?php foreach($paymentData ?? [] as $pdata){ 
+                    $status_class = statusClass($pdata["status"] ?? null);
                 ?>
                 <tr>
                     <?php if($static_logic){ ?>
@@ -161,9 +161,10 @@ function statusClass($status){
 <!-- start of pagination  -->
 <?php
 
-$page = $pagination["page"]??1;
-$total_records = $pagination["totalCount"];
-$size = $pagination["defaultPageSize"]??1;
+$pagination = $pagination ?? [];
+$page = $pagination["page"] ?? 1;
+$total_records = $pagination["totalCount"] ?? 0;
+$size = $pagination["defaultPageSize"] ?? 1;
 $previous_page = $page - 1;
 $next_page = $page + 1;
 $adjacents = "2";

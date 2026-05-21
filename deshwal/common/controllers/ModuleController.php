@@ -2917,11 +2917,12 @@ class ModuleController extends Controller
                     }
                 } catch (\Throwable $e) {
                     Yii::error("Error in updateModule: " . $e->getMessage(), __METHOD__);
-                    Yii::$app->session->setFlash('error', $e->getMessage());
+                    $userMessage = 'An unexpected error occurred during conversion. Please check the data or contact support.';
+                    Yii::$app->session->setFlash('error', $userMessage);
 
                     $this->layout = '@backend/views/layouts/main-one'; // Use your custom layout
                     return $this->render('@backend/views/site/errorcustom', [
-                        'message' => $e->getMessage(),
+                        'message' => $userMessage,
                     ]);
                 }
             }
@@ -6767,47 +6768,63 @@ WHERE
                 // echo "<pre>";print_r($arrRender);die;
             } else //($tabid == 'all')
             {
+                $mode = Yii::$app->request->get('mode');
+                
+                // Cache module list in session for 10 minutes to save 200ms+ per search
+                $session = Yii::$app->session;
+                $cacheKey = 'search_modules_list_' . ($hasadminpower ? 'admin' : $id);
+                $getdetailsArr = $session->get($cacheKey);
 
-                if ($hasadminpower == 1) {
-                    $getdetailsArr = Tab::find()->select(['tablename', 'tablekeyid', 'name', 'tablabel', 'tabid'])
-                        ->where(['presence' => 0, 'search_allowed' => 1])
-                        //->andWhere(['NOT IN', 'tabid', [4,6,37, 38, 41,58,59,60,61,62,63,66,67,68,69,70,10,72,73,75,79,80,81,82,83,84,85,86,87,89,85,88,80,33,77,76,90,89]])
-                        ->all();
-                } else {
-                    $getdetailsArr = Tab::find()->select(['t.tablename', 't.tablekeyid', 't.name', 't.tablabel', 't.tabid'])
-                        ->alias('t')
-                        ->join('INNER JOIN', 'profile2tab p2t', 'p2t.tabid = t.tabid')
-                        ->join('INNER JOIN', 'profile p', 'p.profileid = p2t.profileid')
-                        ->join('INNER JOIN', 'role2profile r2p', 'r2p.profileid = p.profileid')
-                        ->join('INNER JOIN', 'role r', 'r.roleid = r2p.roleid')
-                        ->join('INNER JOIN', 'user2role u2r', 'u2r.roleid = r.roleid')
-                        ->join('INNER JOIN', 'user u', 'u.id = u2r.userid')
-                        ->join('LEFT JOIN', 'submenu s', 's.submenu_id = t.submenu')
-                        ->where([
-                            't.presence' => 0,
-                            't.visible' => 0,
-                            'u.id' => $id,
-                            'p2t.permissions' => 0,
-                            't.search_allowed' => 1
-                        ])
-                        ->groupBy('t.tabid')
-                        ->orderBy('t.tabsequence')
-                        ->all();
+                if (!$getdetailsArr) {
+                    if ($hasadminpower == 1) {
+                        $query = Tab::find()->select(['tablename', 'tablekeyid', 'name', 'tablabel', 'tabid'])
+                            ->where(['presence' => 0, 'search_allowed' => 1]);
+                        
+                        if ($mode === 'quick') {
+                            $query->andWhere(['IN', 'name', ['Leads', 'Accounts', 'Contacts', 'Opportunities', 'Tasks', 'Vendors']]);
+                        }
+                        $getdetailsArr = $query->all();
+                    } else {
+                        $query = Tab::find()->select(['t.tablename', 't.tablekeyid', 't.name', 't.tablabel', 't.tabid'])
+                            ->alias('t')
+                            ->join('INNER JOIN', 'profile2tab p2t', 'p2t.tabid = t.tabid')
+                            ->where([
+                                't.presence' => 0,
+                                't.visible' => 0,
+                                'p2t.permissions' => 0,
+                                't.search_allowed' => 1
+                            ]);
+                        
+                        if ($mode === 'quick') {
+                            $query->andWhere(['IN', 't.name', ['Leads', 'Accounts', 'Contacts', 'Opportunities', 'Tasks', 'Vendors']]);
+                        }
+                        
+                        $getdetailsArr = $query->groupBy('t.tabid')
+                            ->orderBy('t.tabsequence')
+                            ->all();
+                    }
+                    $session->set($cacheKey, $getdetailsArr);
                 }
+
+                $moduleCount = 0;
                 foreach ($getdetailsArr as $arr) {
-                    // echo "<pre>";print_r($arr);die;
-                    // && $arr->tablename !='products' 
-                    // && $arr->tablename != 'purchase_order' && $arr->tablename != 'vendor_account' 
-                    // && $arr->tablename != 'contacts' &&  $arr->tablename !='meeting_information'
-                    // && $arr->tablename != 'task_information'
-                    if ($arr->tablename != "" && $arr->tablename != null) { //because data wiping pricing no tablename are there
+                    if ($mode === 'quick' && $moduleCount >= 5) break; // Limit to 5 modules for performance
+
+                    if ($arr->tablename != "" && $arr->tablename != null) {
                         $searchmodel = new SearchModel($arr->tablename, $arr->tablekeyid, $arr->name);
                         $this->getClientScript($ModuleName, strtolower($action));
                         $ActionList = $searchmodel->getActionList($ModuleName);
                         $ActionList['OrderBy'] = Yii::$app->request->get('OrderBy');
                         $ActionList['SortOrder'] = Yii::$app->request->get('SortOrder');
-                        $ColumnList = $searchmodel->getColumnList();
-                        list($Column, $RecordList, $totalitemcount) = $searchmodel->getsearchAllListRecord($TableName, $search, $ActionList['OrderBy'], $ActionList['SortOrder'], $rolebasedrecord, $modulepermission);
+                        
+                        // Pass limit to the model if it's a quick search
+                        $isQuick = ($mode === 'quick');
+                        if ($isQuick) {
+                            $_REQUEST['limit'] = 5; 
+                        }
+
+                        list($Column, $RecordList, $totalitemcount) = $searchmodel->getsearchAllListRecord($TableName, $search, $ActionList['OrderBy'], $ActionList['SortOrder'], $rolebasedrecord, $modulepermission, $isQuick);
+                        
                         if (count($RecordList) > 0) {
                             $arrR = array();
                             $arrR['Column'] = $Column;
@@ -6817,14 +6834,12 @@ WHERE
                             $arrR['ori_modulename'] = $arr['name'];
                             $arrR['tabid'] = $arr['tabid'];
                             array_push($tabarr, $arrR);
+                            $moduleCount++;
                         }
-
-                        // if($arr->tablename !='products')
-                        //     break;
                     }
                 }
-                // die;
             }
+            // die;
             // $this->layout = '@app/views/layouts/main-one';
             // $this->render('@app/views/tetra/searchresult', ['ModuleName' => $ModuleName]);
             Yii::$app->response->format = Response::FORMAT_JSON;
@@ -6844,7 +6859,7 @@ WHERE
         }
         // Fetch the latest record from the DB
         $this->layout = '@app/views/layouts/main-one';
-        $this->render('@app/views/tetra/searchresult', ['ModuleName' => $ModuleName]);
+        return $this->render('@app/views/tetra/searchresult', ['ModuleName' => $ModuleName]);
     }
     function convertToUcfirstOrPascalCase($string)
     {

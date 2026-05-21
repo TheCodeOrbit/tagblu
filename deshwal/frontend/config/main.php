@@ -26,23 +26,22 @@ return [
             'identityCookie' => [
                 'name' => '_identity-frontend',
                 'httpOnly' => true,
-               // 'path' => '/deshwal',  // ✅ same as backend
+                'path' => '/',
             ],
         ],
         'session' => [
             'name' => 'advanced-frontend',
             'cookieParams' => [
-                //'path' => '/deshwal',  // ✅ same as backend
+                'path' => '/',
                 'httpOnly' => true,
             ],
         ],
        'request' => [
-            'class' => 'common\components\Request',
-            'web' => '/frontend/web', // custom
+            'baseUrl' => '',
             'csrfParam' => '_csrf-frontend',
             'csrfCookie' => [
                 'httpOnly' => true,
-                //'path' => '/deshwal', // ✅ restrict to frontend path
+                'path' => '/',
             ],
         ],
         'log' => [

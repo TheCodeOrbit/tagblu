@@ -15,8 +15,9 @@ AppAsset::register($this);
 $baseUrl = Yii::$app->HomeUrl;
 $controller = Yii::$app->controller->id;       // Controller ID
 $action = Yii::$app->controller->action->id;  // Action ID
-$vendor_name = $_SESSION["vendor_name"]??"";
-$is_admin = $_SESSION["is_admin"]??0;
+$session = Yii::$app->session;
+$vendor_name = $session->get('vendor_name', '');
+$is_admin = $session->get('is_admin', 0);
 ?>
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
@@ -63,7 +64,7 @@ $is_admin = $_SESSION["is_admin"]??0;
             <img src="<?= $baseUrl; ?>images/Group-908.png" alt="Bell Icon" class="bell-icon"> -->
             <div title="Profile" class="d-flex flex-column justify-content-center align-items-center">
                 <img class="profile-img-div" src="<?= $baseUrl; ?>images/no-image.png" width="25" height="25" alt="User Image">
-                <div class="user-name"><?php echo $_SESSION["loggedin_user_name"]??"";?><?php echo $_SESSION["user_roles"]?" (".$_SESSION["user_roles"].")":""?><?php echo $is_admin?"|Admin":"";?></div>
+                <div class="user-name"><?php echo $session->get('loggedin_user_name', '');?><?php echo $session->get('user_roles') ? ' (' . $session->get('user_roles') . ')' : '';?><?php echo $is_admin ? '|Admin' : '';?></div>
             </div>
         </div>
     </div>
